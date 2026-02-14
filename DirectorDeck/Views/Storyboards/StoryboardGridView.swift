@@ -12,7 +12,10 @@ struct StoryboardGridView: View {
         project.storyboardCards.sorted { $0.orderIndex < $1.orderIndex }
     }
     
-    let columns = [GridItem(.adaptive(minimum: 280, maximum: 400), spacing: 20)]
+    let columns = [
+        GridItem(.flexible(), spacing: 20),
+        GridItem(.flexible(), spacing: 20)
+    ]
     
     var body: some View {
         Group {
@@ -60,6 +63,7 @@ struct StoryboardGridView: View {
 
 struct StoryboardCardView: View {
     let card: StoryboardCard
+    @State private var isPressed = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -79,10 +83,10 @@ struct StoryboardCardView: View {
                 } else {
                     VStack(spacing: 8) {
                         Image(systemName: "photo.on.rectangle")
-                            .font(.largeTitle)
+                            .font(.title)
                             .foregroundStyle(.tertiary)
                         Text("No Image")
-                            .font(.caption)
+                            .font(.caption2)
                             .foregroundStyle(.tertiary)
                     }
                 }
@@ -91,21 +95,24 @@ struct StoryboardCardView: View {
                 VStack {
                     HStack {
                         Text("#\(card.orderIndex + 1)")
-                            .font(.caption.weight(.bold))
+                            .font(.system(.caption2, design: .rounded, weight: .bold))
+                            .foregroundStyle(.white)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
                             .background(.ultraThinMaterial, in: Capsule())
+                            .overlay(Capsule().stroke(Color.white.opacity(0.15), lineWidth: 0.5))
                         Spacer()
                     }
                     Spacer()
                 }
                 .padding(10)
             }
+            .clipShape(UnevenRoundedRectangle(topLeadingRadius: 16, topTrailingRadius: 16))
             
             // Info area
             VStack(alignment: .leading, spacing: 6) {
                 Text(card.title)
-                    .font(.headline)
+                    .font(.system(.subheadline, design: .rounded, weight: .semibold))
                     .lineLimit(1)
                 
                 if !card.sceneDescription.isEmpty {
@@ -128,9 +135,14 @@ struct StoryboardCardView: View {
                     }
                 }
             }
-            .padding(12)
+            .padding(14)
         }
         .glassCard()
+        .scaleEffect(isPressed ? 0.97 : 1)
+        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isPressed)
+        .onLongPressGesture(minimumDuration: .infinity, pressing: { pressing in
+            isPressed = pressing
+        }, perform: {})
     }
 }
 
@@ -274,7 +286,7 @@ struct StoryboardCardDetailSheet: View {
                     
                     VStack(spacing: 16) {
                         TextField("Title", text: $card.title)
-                            .font(.title2.weight(.semibold))
+                            .font(.system(.title2, design: .rounded, weight: .bold))
                             .textFieldStyle(.plain)
                         
                         LabeledContent("Description") {
@@ -294,7 +306,7 @@ struct StoryboardCardDetailSheet: View {
                         
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Notes")
-                                .font(.headline)
+                                .font(.system(.headline, design: .rounded))
                             TextEditor(text: $card.notes)
                                 .frame(minHeight: 100)
                                 .scrollContentBackground(.hidden)

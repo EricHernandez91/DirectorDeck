@@ -35,7 +35,8 @@ struct ShotListView: View {
                     ForEach(shots) { shot in
                         ShotListRow(shot: shot)
                             .onTapGesture { selectedShot = shot }
-                            .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                            .listRowSeparatorTint(Color.white.opacity(0.06))
                     }
                     .onMove(perform: moveShots)
                     .onDelete(perform: deleteShots)
@@ -91,13 +92,18 @@ struct ShotListRow: View {
         HStack(spacing: 14) {
             // Completion toggle
             Button {
-                withAnimation(.spring(response: 0.3)) {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                     shot.isCompleted.toggle()
                 }
             } label: {
-                Image(systemName: shot.isCompleted ? "checkmark.circle.fill" : "circle")
-                    .font(.title2)
-                    .foregroundStyle(shot.isCompleted ? .green : .secondary)
+                ZStack {
+                    Circle()
+                        .fill(shot.isCompleted ? Color.green.opacity(0.15) : Color.clear)
+                        .frame(width: 32, height: 32)
+                    Image(systemName: shot.isCompleted ? "checkmark.circle.fill" : "circle")
+                        .font(.title3)
+                        .foregroundStyle(shot.isCompleted ? Color.green : Color.secondary)
+                }
             }
             .buttonStyle(.plain)
             
@@ -107,23 +113,24 @@ struct ShotListRow: View {
                     .resizable()
                     .scaledToFill()
                     .frame(width: 60, height: 40)
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
             }
             
             // Info
-            VStack(alignment: .leading, spacing: 3) {
-                HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 8) {
                     if !shot.shotNumber.isEmpty {
                         Text(shot.shotNumber)
-                            .font(.caption.weight(.bold))
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(DDTheme.teal.opacity(0.2), in: Capsule())
+                            .font(.system(.caption2, design: .rounded, weight: .bold))
+                            .padding(.horizontal, 7)
+                            .padding(.vertical, 3)
+                            .background(DDTheme.teal.opacity(0.15), in: Capsule())
                             .foregroundStyle(DDTheme.teal)
                     }
                     Text(shot.title)
-                        .font(.body.weight(.medium))
-                        .strikethrough(shot.isCompleted)
+                        .font(.system(.body, design: .rounded, weight: .medium))
+                        .strikethrough(shot.isCompleted, color: .secondary.opacity(0.5))
+                        .foregroundStyle(shot.isCompleted ? .secondary : .primary)
                 }
                 
                 HStack(spacing: 10) {
@@ -138,7 +145,7 @@ struct ShotListRow: View {
                 if !shot.shotDescription.isEmpty {
                     Text(shot.shotDescription)
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.secondary.opacity(0.7))
                         .lineLimit(1)
                 }
             }
@@ -147,14 +154,16 @@ struct ShotListRow: View {
             
             if !shot.scene.isEmpty {
                 Text(shot.scene)
-                    .font(.caption2)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(.quaternary, in: Capsule())
+                    .font(.system(.caption2, design: .rounded, weight: .medium))
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                    .background(Color(.tertiarySystemFill), in: Capsule())
             }
         }
         .padding(.vertical, 4)
-        .opacity(shot.isCompleted ? 0.6 : 1)
+        .opacity(shot.isCompleted ? 0.65 : 1)
+        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: shot.isCompleted)
     }
 }
 

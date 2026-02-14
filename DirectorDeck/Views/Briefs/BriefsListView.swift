@@ -62,12 +62,18 @@ private struct HSplitContent: View {
         HStack(spacing: 0) {
             List(briefs, selection: $selectedBrief) { brief in
                 NavigationLink(value: brief) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(brief.title)
-                            .font(.headline)
-                        Text(brief.updatedAt, style: .relative)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                    HStack(spacing: 12) {
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(DDTheme.tealGradient)
+                            .frame(width: 4, height: 36)
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(brief.title)
+                                .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                            Text(brief.updatedAt, style: .relative)
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
                     }
                     .padding(.vertical, 4)
                 }
@@ -76,7 +82,7 @@ private struct HSplitContent: View {
                 }
             }
             .listStyle(.sidebar)
-            .frame(width: 260)
+            .frame(width: 280)
             
             Divider()
             
@@ -96,19 +102,20 @@ struct BriefEditorView: View {
         VStack(spacing: 0) {
             HStack {
                 TextField("Title", text: $brief.title)
-                    .font(.title.weight(.semibold))
+                    .font(.system(.title2, design: .rounded, weight: .bold))
                     .textFieldStyle(.plain)
                 Spacer()
                 Text("Last edited \(brief.updatedAt, style: .relative) ago")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.tertiary)
             }
             .padding()
             
             Divider()
+                .overlay(Color.white.opacity(0.04))
             
             TextEditor(text: $brief.content)
-                .font(.body)
+                .font(.system(.body, design: .default))
                 .scrollContentBackground(.hidden)
                 .padding()
                 .onChange(of: brief.content) {

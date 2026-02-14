@@ -33,6 +33,7 @@ struct DocumentsView: View {
                     ForEach(documents) { doc in
                         DocumentRow(document: doc)
                             .onTapGesture { selectedDocument = doc }
+                            .listRowSeparatorTint(Color.white.opacity(0.06))
                     }
                     .onDelete(perform: deleteDocuments)
                 }
@@ -95,39 +96,47 @@ struct DocumentRow: View {
     var body: some View {
         HStack(spacing: 14) {
             ZStack {
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(iconColor.opacity(0.15))
-                    .frame(width: 44, height: 44)
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(iconColor.opacity(0.12))
+                    .frame(width: 48, height: 48)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(iconColor.opacity(0.2), lineWidth: 0.5)
+                    )
                 Image(systemName: iconName)
                     .font(.title3)
                     .foregroundStyle(iconColor)
             }
             
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(document.name)
-                    .font(.body.weight(.medium))
+                    .font(.system(.body, design: .rounded, weight: .medium))
                     .lineLimit(1)
-                HStack {
-                    Text(document.documentType.rawValue)
-                    Text("•")
+                HStack(spacing: 6) {
+                    Text(document.documentType.rawValue.uppercased())
+                        .font(.system(.caption2, design: .rounded, weight: .semibold))
+                        .foregroundStyle(iconColor)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(iconColor.opacity(0.1), in: Capsule())
                     Text(document.createdAt, style: .date)
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
                 }
-                .font(.caption)
-                .foregroundStyle(.secondary)
             }
             
             Spacer()
             
             Image(systemName: "chevron.right")
-                .font(.caption)
+                .font(.caption2)
                 .foregroundStyle(.tertiary)
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 6)
     }
     
     var iconName: String {
         switch document.documentType {
-        case .pdf: return "doc.fill"
+        case .pdf: return "doc.text.fill"
         case .image: return "photo.fill"
         case .other: return "doc.fill"
         }

@@ -9,24 +9,77 @@ struct ProjectSectionsView: View {
     
     var body: some View {
         List(selection: $selectedSection) {
-            Section("Production") {
+            // Project header card
+            Section {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(spacing: 12) {
+                        Circle()
+                            .fill(DDTheme.tealGradient)
+                            .frame(width: 44, height: 44)
+                            .overlay {
+                                Text(String(project.name.prefix(1)).uppercased())
+                                    .font(.system(.title3, design: .rounded, weight: .bold))
+                                    .foregroundStyle(.white)
+                            }
+                            .shadow(color: DDTheme.teal.opacity(0.3), radius: 6, y: 2)
+                        
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(project.name)
+                                .font(.system(.title3, design: .rounded, weight: .bold))
+                            if !project.projectDescription.isEmpty {
+                                Text(project.projectDescription)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(2)
+                            }
+                        }
+                    }
+                    
+                    // Stats row
+                    HStack(spacing: 16) {
+                        statBadge(count: project.briefs.count, label: "Briefs")
+                        statBadge(count: project.storyboardCards.count, label: "Boards")
+                        statBadge(count: project.shotListItems.count, label: "Shots")
+                        statBadge(count: project.documents.count, label: "Docs")
+                    }
+                    .padding(.top, 4)
+                }
+                .padding(.vertical, 6)
+            }
+            
+            Section {
                 sectionRow(.briefs, icon: "doc.text.fill", label: "Creative Briefs", count: project.briefs.count)
                 sectionRow(.interviews, icon: "person.2.fill", label: "Interviews", count: project.interviewSubjects.count)
                 sectionRow(.storyboards, icon: "rectangle.split.3x3.fill", label: "Storyboards", count: project.storyboardCards.count)
                 sectionRow(.shotList, icon: "list.bullet.rectangle.fill", label: "Shot List", count: project.shotListItems.count)
+            } header: {
+                Text("PRODUCTION")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .tracking(1.2)
             }
             
-            Section("On Set") {
+            Section {
                 sectionRow(.shootDay, icon: "video.fill", label: "Shoot Day Mode", count: nil)
+            } header: {
+                Text("ON SET")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .tracking(1.2)
             }
             
-            Section("Documents") {
+            Section {
                 sectionRow(.documents, icon: "folder.fill", label: "All Documents", count: project.documents.count)
                 
                 ForEach(project.folders) { folder in
                     sectionRow(.folder(folder), icon: "folder.fill", label: folder.name, count: nil)
                 }
                 .onDelete(perform: deleteFolders)
+            } header: {
+                Text("DOCUMENTS")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .tracking(1.2)
             }
         }
         .listStyle(.sidebar)
@@ -50,19 +103,31 @@ struct ProjectSectionsView: View {
         }
     }
     
+    private func statBadge(count: Int, label: String) -> some View {
+        VStack(spacing: 2) {
+            Text("\(count)")
+                .font(.system(.subheadline, design: .rounded, weight: .bold))
+                .foregroundStyle(DDTheme.teal)
+            Text(label)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+        }
+    }
+    
     private func sectionRow(_ section: SidebarSection, icon: String, label: String, count: Int?) -> some View {
         NavigationLink(value: section) {
             Label {
                 HStack {
                     Text(label)
+                        .font(.system(.body, design: .rounded, weight: .medium))
                     Spacer()
                     if let count {
                         Text("\(count)")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .font(.system(.caption2, design: .rounded, weight: .bold))
+                            .foregroundStyle(DDTheme.teal)
                             .padding(.horizontal, 8)
-                            .padding(.vertical, 2)
-                            .background(.quaternary, in: Capsule())
+                            .padding(.vertical, 3)
+                            .background(DDTheme.teal.opacity(0.12), in: Capsule())
                     }
                 }
             } icon: {

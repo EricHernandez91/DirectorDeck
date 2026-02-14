@@ -6,17 +6,40 @@ enum DDTheme {
     static let cardBackground = Color(.secondarySystemGroupedBackground)
     static let subtleBackground = Color(.systemGroupedBackground)
     
+    static let deepBackground = Color(red: 0.039, green: 0.039, blue: 0.059)
+    static let surfaceBackground = Color(red: 0.067, green: 0.067, blue: 0.094)
+    
     static let cardCornerRadius: CGFloat = 16
     static let smallCornerRadius: CGFloat = 10
     static let standardPadding: CGFloat = 16
     static let largePadding: CGFloat = 24
+    
+    static var backgroundGradient: LinearGradient {
+        LinearGradient(
+            colors: [deepBackground, surfaceBackground],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+    }
+    
+    static var tealGradient: LinearGradient {
+        LinearGradient(
+            colors: [teal, teal.opacity(0.7)],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
 }
 
 struct CardStyle: ViewModifier {
     func body(content: Content) -> some View {
         content
             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DDTheme.cardCornerRadius))
-            .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 2)
+            .overlay(
+                RoundedRectangle(cornerRadius: DDTheme.cardCornerRadius)
+                    .stroke(Color.white.opacity(0.06), lineWidth: 1)
+            )
+            .shadow(color: .black.opacity(0.3), radius: 12, x: 0, y: 4)
     }
 }
 
@@ -26,8 +49,9 @@ struct GlassCardStyle: ViewModifier {
             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DDTheme.cardCornerRadius))
             .overlay(
                 RoundedRectangle(cornerRadius: DDTheme.cardCornerRadius)
-                    .stroke(Color.white.opacity(0.1), lineWidth: 0.5)
+                    .stroke(Color.white.opacity(0.08), lineWidth: 1)
             )
+            .shadow(color: .black.opacity(0.25), radius: 10, x: 0, y: 4)
     }
 }
 
@@ -38,6 +62,14 @@ extension View {
     
     func glassCard() -> some View {
         modifier(GlassCardStyle())
+    }
+    
+    func sectionHeader() -> some View {
+        self
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(.secondary)
+            .textCase(.uppercase)
+            .tracking(1.2)
     }
 }
 
@@ -77,7 +109,7 @@ struct SectionHeaderView: View {
                 .foregroundStyle(DDTheme.teal)
                 .font(.title3)
             Text(title)
-                .font(.title3.weight(.semibold))
+                .font(.system(.title3, design: .rounded, weight: .semibold))
             Spacer()
         }
     }

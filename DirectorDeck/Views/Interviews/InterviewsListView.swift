@@ -61,20 +61,36 @@ struct InterviewsListView: View {
     private var subjectsList: some View {
         List(subjects, selection: $selectedSubject) { subject in
             NavigationLink(value: subject) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(subject.name)
-                        .font(.headline)
-                    if !subject.role.isEmpty {
-                        Text(subject.role)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    let asked = subject.questions.filter(\.isAsked).count
-                    let total = subject.questions.count
-                    if total > 0 {
-                        Text("\(asked)/\(total) asked")
-                            .font(.caption2)
-                            .foregroundStyle(DDTheme.teal)
+                HStack(spacing: 12) {
+                    Circle()
+                        .fill(DDTheme.tealGradient)
+                        .frame(width: 36, height: 36)
+                        .overlay {
+                            Text(String(subject.name.prefix(1)).uppercased())
+                                .font(.system(.caption, design: .rounded, weight: .bold))
+                                .foregroundStyle(.white)
+                        }
+                    
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(subject.name)
+                            .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                        if !subject.role.isEmpty {
+                            Text(subject.role)
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
+                        let asked = subject.questions.filter(\.isAsked).count
+                        let total = subject.questions.count
+                        if total > 0 {
+                            HStack(spacing: 6) {
+                                ProgressView(value: Double(asked), total: Double(total))
+                                    .tint(DDTheme.teal)
+                                    .frame(width: 50)
+                                Text("\(asked)/\(total)")
+                                    .font(.system(.caption2, design: .rounded, weight: .medium))
+                                    .foregroundStyle(DDTheme.teal)
+                            }
+                        }
                     }
                 }
                 .padding(.vertical, 4)
@@ -87,7 +103,7 @@ struct InterviewsListView: View {
             }
         }
         .listStyle(.sidebar)
-        .frame(width: 260)
+        .frame(width: 280)
     }
 }
 
@@ -100,28 +116,29 @@ struct InterviewQuestionsView: View {
     var body: some View {
         VStack(spacing: 0) {
             // Header
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 8) {
                 Text(subject.name)
-                    .font(.title2.weight(.semibold))
+                    .font(.system(.title2, design: .rounded, weight: .bold))
                 if !subject.role.isEmpty {
                     Text(subject.role)
+                        .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
                 let asked = subject.questions.filter(\.isAsked).count
                 let total = subject.questions.count
                 if total > 0 {
-                    ProgressView(value: Double(asked), total: Double(total))
-                        .tint(DDTheme.teal)
-                        .padding(.top, 4)
-                    Text("\(asked) of \(total) questions asked")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    VStack(alignment: .leading, spacing: 4) {
+                        ProgressView(value: Double(asked), total: Double(total))
+                            .tint(DDTheme.teal)
+                        Text("\(asked) of \(total) questions asked")
+                            .font(.system(.caption, design: .rounded))
+                            .foregroundStyle(.secondary)
+                    }
                 }
             }
             .padding()
             .frame(maxWidth: .infinity, alignment: .leading)
-            
-            Divider()
+            .background(.ultraThinMaterial)
             
             // Questions list
             List {
@@ -142,6 +159,7 @@ struct InterviewQuestionsView: View {
                     .font(.title3)
                 TextField("Add a question...", text: $newQuestionText)
                     .textFieldStyle(.plain)
+                    .font(.system(.body, design: .rounded))
                     .onSubmit(addQuestion)
                 Button("Add", action: addQuestion)
                     .disabled(newQuestionText.isEmpty)
@@ -185,25 +203,30 @@ struct QuestionRow: View {
     var body: some View {
         HStack(spacing: 12) {
             Button {
-                withAnimation(.spring(response: 0.3)) {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                     question.isAsked.toggle()
                 }
             } label: {
-                Image(systemName: question.isAsked ? "checkmark.circle.fill" : "circle")
-                    .font(.title2)
-                    .foregroundStyle(question.isAsked ? DDTheme.teal : .secondary)
+                ZStack {
+                    Circle()
+                        .fill(question.isAsked ? DDTheme.teal.opacity(0.15) : Color.clear)
+                        .frame(width: 30, height: 30)
+                    Image(systemName: question.isAsked ? "checkmark.circle.fill" : "circle")
+                        .font(.title3)
+                        .foregroundStyle(question.isAsked ? DDTheme.teal : Color.secondary)
+                }
             }
             .buttonStyle(.plain)
             
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 3) {
                 Text(question.text)
-                    .font(.body)
-                    .strikethrough(question.isAsked)
+                    .font(.system(.body, design: .rounded))
+                    .strikethrough(question.isAsked, color: .secondary.opacity(0.5))
                     .foregroundStyle(question.isAsked ? .secondary : .primary)
                 if !question.notes.isEmpty {
                     Text(question.notes)
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.tertiary)
                 }
             }
             
@@ -211,11 +234,12 @@ struct QuestionRow: View {
             
             Button(action: onEdit) {
                 Image(systemName: "pencil.circle")
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.tertiary)
             }
             .buttonStyle(.plain)
         }
         .padding(.vertical, 4)
+        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: question.isAsked)
     }
 }
 

@@ -15,35 +15,39 @@ struct SidebarView: View {
                     NavigationLink(value: project) {
                         HStack(spacing: 12) {
                             Circle()
-                                .fill(DDTheme.teal.gradient)
-                                .frame(width: 36, height: 36)
+                                .fill(DDTheme.tealGradient)
+                                .frame(width: 38, height: 38)
                                 .overlay {
                                     Text(String(project.name.prefix(1)).uppercased())
-                                        .font(.system(.callout, weight: .bold))
+                                        .font(.system(.callout, design: .rounded, weight: .bold))
                                         .foregroundStyle(.white)
                                 }
+                                .shadow(color: DDTheme.teal.opacity(0.3), radius: 6, y: 2)
                             
-                            VStack(alignment: .leading, spacing: 2) {
+                            VStack(alignment: .leading, spacing: 3) {
                                 Text(project.name)
-                                    .font(.body.weight(.medium))
+                                    .font(.system(.body, design: .rounded, weight: .semibold))
                                 Text(project.projectDescription.isEmpty ? "No description" : project.projectDescription)
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                                     .lineLimit(1)
                             }
                         }
-                        .padding(.vertical, 4)
+                        .padding(.vertical, 5)
                     }
                 }
                 .onDelete(perform: deleteProjects)
             } header: {
                 HStack {
-                    Text("Projects")
-                        .font(.headline)
+                    Text("PROJECTS")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .tracking(1.2)
                     Spacer()
                     Button(action: { showNewProject = true }) {
                         Image(systemName: "plus.circle.fill")
                             .foregroundStyle(DDTheme.teal)
+                            .font(.title3)
                     }
                 }
             }
