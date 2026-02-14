@@ -10,6 +10,7 @@ struct SampleDataService {
         guard count == 0 else { return }
         
         createTheLastLight(context: context)
+        createBostonShoot(context: context)
     }
     
     private static func createTheLastLight(context: ModelContext) {
@@ -173,6 +174,245 @@ struct SampleDataService {
         let folder1 = ProjectFolder(name: "Scripts", project: project)
         let folder2 = ProjectFolder(name: "Location Scouts", project: project)
         let folder3 = ProjectFolder(name: "Reference Images", project: project)
+        context.insert(folder1)
+        context.insert(folder2)
+        context.insert(folder3)
+    }
+    
+    // MARK: - Boston Shoot
+    
+    private static func createBostonShoot(context: ModelContext) {
+        // MARK: - Project
+        let project = Project(
+            name: "Matt & Harrison's Story",
+            projectDescription: "The Approach 2026 — Boston Production. 2-3 min story video. Creative thread: 'I future-proof my restaurant's business through talent.' Sunday = reenactment + interviews, Monday = all B-roll.",
+            colorHex: "#C41230"
+        )
+        context.insert(project)
+        
+        // MARK: - Creative Brief
+        let brief = CreativeBrief(
+            title: "Creative Brief — Matt & Harrison's Story",
+            content: """
+            MATT & HARRISON'S STORY — Creative Brief
+            ==========================================
+            
+            DELIVERABLE
+            2-3 minute story video
+            
+            CREATIVE THREAD
+            "I future-proof my restaurant's business through talent."
+            
+            SHOOT DAYS
+            • Sunday — Reenactment of leadership meeting + interviews
+            • Monday — All B-roll (rush hour handheld + stabilized system shots)
+            
+            KEY REMINDERS
+            • Always say "at my local restaurant" — never "at Chick-fil-A"
+            • This is the Operator's talent strategy; the TD implements it
+            • Harrison: keep high-level outcomes, not Red Wagon process details
+            • Harrison is a polished communicator — guide toward authentic, not rehearsed
+            • Matt is the emotional heart — go for emotion
+            • Name tags can be worn on camera
+            • Coordinate B-roll around rush hours
+            • Have a backup plan if leadership team turnout is low
+            
+            INTERVIEW APPROACH
+            Harrison (Talent Director): Focus on EVP and high-level outcomes. Results-oriented.
+            Matt (Operator): Vision, scaling, emotional story. People and purpose.
+            Joint session: Quick, conversational. Natural interactions and reaction shots.
+            """,
+            project: project
+        )
+        context.insert(brief)
+        
+        // MARK: - Interview Subjects & Questions
+        
+        // Harrison
+        let harrison = InterviewSubject(
+            name: "Harrison",
+            role: "Talent Director — EVP & High-Level Outcomes",
+            notes: "Keep it high-level. Don't get into Red Wagon process details — focus on results and employee value proposition. Polished communicator — guide toward authentic, not rehearsed.",
+            project: project
+        )
+        context.insert(harrison)
+        
+        let harrisonQs: [String] = [
+            "Tell us about yourself and your role at the restaurant.",
+            "What does it mean to you to be a Talent Director — how do you see your role in the bigger picture?",
+            "When you first started working with Matt on a talent strategy, what was the restaurant's biggest people challenge?",
+            "How would you describe the culture at your restaurant today versus before you had a deliberate talent strategy?",
+            "What does your employee value proposition look like — why do people choose to work here and stay?",
+            "How has having a long-term talent strategy changed the way you recruit and retain team members?",
+            "What does it look like when a team member grows into a leader at your restaurant?",
+            "Can you share a specific moment where you saw the strategy paying off — a person or a result that made it real?",
+            "How do you and Matt partner together on talent decisions? What does that dynamic look like?",
+            "What would you say to another Talent Director who feels like they're just filling shifts instead of building something bigger?",
+            "How do you keep your talent strategy aligned with the business as it grows and changes?",
+            "What's one thing you're most proud of that's come from this work?",
+        ]
+        for (i, q) in harrisonQs.enumerated() {
+            let question = InterviewQuestion(text: q, notes: "", orderIndex: i, subject: harrison)
+            question.isAsked = false
+            context.insert(question)
+        }
+        
+        // Matt
+        let matt = InterviewSubject(
+            name: "Matt",
+            role: "Operator — Vision, Scaling, Emotional Story",
+            notes: "Matt is the emotional heart. Get him talking about people, purpose, and why this matters.",
+            project: project
+        )
+        context.insert(matt)
+        
+        let mattQs: [String] = [
+            "Tell us about your journey — how did you get to where you are today?",
+            "You're scaling across multiple markets. How do you grow without losing the culture that makes your restaurant special?",
+            "When did you realize you needed a deliberate, long-term talent strategy?",
+            "What was the turning point — was there a moment where things shifted?",
+            "How do you think about the relationship between your business strategy and your talent strategy?",
+            "What role does Harrison play in executing your vision for talent?",
+            "What does 'future-proofing your business through talent' mean to you in practical terms?",
+            "How has investing in your people impacted your business results?",
+            "Can you tell us about a team member whose growth story embodies what you're building?",
+            "What's the hardest part about leading with a people-first approach when the labor market is tough?",
+            "What would you say to an Operator who thinks talent strategy is a nice-to-have, not a must-have?",
+            "What keeps you anchored in purpose as you scale?",
+            "Where do you see your restaurant — and your people — in five years?",
+        ]
+        for (i, q) in mattQs.enumerated() {
+            let question = InterviewQuestion(text: q, notes: "", orderIndex: i, subject: matt)
+            question.isAsked = false
+            context.insert(question)
+        }
+        
+        // Joint
+        let joint = InterviewSubject(
+            name: "Matt & Harrison",
+            role: "Joint Q&A — Short Session (B-roll / Soundbites)",
+            notes: "Quick, conversational. Good for natural interactions and reaction shots.",
+            project: project
+        )
+        context.insert(joint)
+        
+        let jointQs: [String] = [
+            "How would you each describe your working relationship in one sentence?",
+            "What's one thing you've learned from each other?",
+            "What's a win you've celebrated together recently?",
+            "Finish this sentence: 'The future of our restaurant depends on ___'",
+        ]
+        for (i, q) in jointQs.enumerated() {
+            let question = InterviewQuestion(text: q, notes: "", orderIndex: i, subject: joint)
+            question.isAsked = false
+            context.insert(question)
+        }
+        
+        // MARK: - Storyboard Cards
+        let storyboardData: [(String, String, String, String, UIColor, UIColor)] = [
+            ("Wide establishing — Meeting", "Group seated around table, meeting in progress", "Wide, static or slow push", "8s",
+             UIColor(red: 0.45, green: 0.12, blue: 0.08, alpha: 1), UIColor(red: 0.65, green: 0.25, blue: 0.12, alpha: 1)),
+            ("Medium group — Discussion", "2-3 people discussing, gesturing at sticky notes", "Medium, handheld", "5s",
+             UIColor(red: 0.50, green: 0.20, blue: 0.05, alpha: 1), UIColor(red: 0.70, green: 0.35, blue: 0.10, alpha: 1)),
+            ("CU Sticky Notes", "Hands writing on sticky notes, placing on board/pad", "Close-up, handheld", "3s",
+             UIColor(red: 0.60, green: 0.50, blue: 0.10, alpha: 1), UIColor(red: 0.80, green: 0.70, blue: 0.20, alpha: 1)),
+            ("CU Faces — Reactions", "Individual reactions — listening, nodding, laughing", "Tight close-ups, shallow DOF", "4s",
+             UIColor(red: 0.55, green: 0.18, blue: 0.10, alpha: 1), UIColor(red: 0.75, green: 0.30, blue: 0.15, alpha: 1)),
+            ("OTS Leader", "Over-the-shoulder of leader addressing group", "Medium-tight, handheld", "5s",
+             UIColor(red: 0.40, green: 0.15, blue: 0.10, alpha: 1), UIColor(red: 0.60, green: 0.28, blue: 0.15, alpha: 1)),
+            ("Wide Board Reveal", "Pull back to show filled whiteboard/pad with post-its", "Slow pull-out or dolly", "6s",
+             UIColor(red: 0.35, green: 0.25, blue: 0.10, alpha: 1), UIColor(red: 0.55, green: 0.40, blue: 0.15, alpha: 1)),
+            ("Harrison Interview", "Seated, standard interview setup. A-cam locked, B-cam tight", "Two-camera setup", "30-45min",
+             UIColor(red: 0.20, green: 0.12, blue: 0.08, alpha: 1), UIColor(red: 0.40, green: 0.22, blue: 0.12, alpha: 1)),
+            ("Matt Interview", "Seated, standard interview setup. A-cam locked, B-cam tight", "Two-camera setup", "30-45min",
+             UIColor(red: 0.25, green: 0.10, blue: 0.05, alpha: 1), UIColor(red: 0.45, green: 0.20, blue: 0.08, alpha: 1)),
+            ("Front Counter Action", "Hands on register, food handoff, bagging orders. No faces, just motion and speed", "FX6, handheld, fast", "10s",
+             UIColor(red: 0.55, green: 0.30, blue: 0.08, alpha: 1), UIColor(red: 0.75, green: 0.45, blue: 0.12, alpha: 1)),
+            ("Kitchen Hustle", "Prep, cooking, plating. Tight on hands and product. Frenetic energy", "FX6, handheld", "10s",
+             UIColor(red: 0.60, green: 0.25, blue: 0.05, alpha: 1), UIColor(red: 0.80, green: 0.40, blue: 0.10, alpha: 1)),
+            ("Team Serving Guests", "Smiling, eye contact, purpose. Faces visible. The system is working", "4D, stabilized, slow push", "8s",
+             UIColor(red: 0.50, green: 0.15, blue: 0.08, alpha: 1), UIColor(red: 0.70, green: 0.30, blue: 0.12, alpha: 1)),
+            ("Register OTS — Hero Shot", "Over shoulder of customer, employee smiling, kitchen behind. Never see customer face", "4D, stabilized, slow dolly", "6s",
+             UIColor(red: 0.45, green: 0.20, blue: 0.10, alpha: 1), UIColor(red: 0.65, green: 0.35, blue: 0.15, alpha: 1)),
+            ("Receipt Pull — Transition", "CU receipt printer. Receipt prints, hand pulls toward camera. Paper fills frame. Match cut to easel pad reveal", "FX6, static/slight push", "4s",
+             UIColor(red: 0.30, green: 0.15, blue: 0.08, alpha: 1), UIColor(red: 0.50, green: 0.28, blue: 0.12, alpha: 1)),
+            ("Plexiglass Closing Shot", "Camera behind plexiglass. Team sticks notes. Final note covers lens. Blackout. CLOSING SHOT of edit", "Ronin 4D, dana dolly push", "8s",
+             UIColor(red: 0.15, green: 0.08, blue: 0.05, alpha: 1), UIColor(red: 0.35, green: 0.15, blue: 0.08, alpha: 1)),
+        ]
+        
+        for (i, data) in storyboardData.enumerated() {
+            let card = StoryboardCard(title: data.0, sceneDescription: data.1, orderIndex: i, project: project)
+            card.cameraAngle = data.2
+            card.duration = data.3
+            card.imageData = generatePlaceholderImage(index: i, title: data.0)
+            context.insert(card)
+        }
+        
+        // MARK: - Shot List
+        let shots: [(String, String, ShotType, String, String, String, String, String, Bool)] = [
+            // Sunday — Leadership Meeting Reenactment
+            ("S1", "Wide establishing — group meeting", .establishing, "Wide lens", "Sun-Meeting", "Restaurant", "Group seated around table, meeting in progress", "Set the scene — collaborative energy", false),
+            ("S2", "Medium group — discussing sticky notes", .mediumShot, "Medium lens", "Sun-Meeting", "Restaurant", "2-3 people discussing, gesturing at sticky notes", "Natural conversation feel", false),
+            ("S3", "CU sticky notes — hands writing", .closeUp, "", "Sun-Meeting", "Restaurant", "Hands writing on sticky notes, placing on board/pad", "Key visual motif — the post-its", false),
+            ("S4", "CU faces — reactions", .closeUp, "Shallow DOF", "Sun-Meeting", "Restaurant", "Individual reactions — listening, nodding, laughing", "Emotional beats", false),
+            ("S5", "OTS leader addressing group", .overTheShoulder, "", "Sun-Meeting", "Restaurant", "Over-the-shoulder of leader addressing group", "Leadership in action", false),
+            ("S6", "Wide board reveal with post-its", .wideShot, "Wide lens", "Sun-Meeting", "Restaurant", "Pull back to show filled whiteboard/pad with post-its", "Payoff shot — visual of strategy", false),
+            ("S7", "Walking in / candids", .handheld, "", "Sun-Meeting", "Restaurant", "Walking in, pre-meeting candids", "Pre-meeting energy, documentary style", false),
+            ("S8", "Harrison facilitating discussion", .mediumShot, "", "Sun-Meeting", "Restaurant", "Harrison facilitating group discussion", "Shows TD role in action", false),
+            // Sunday — Interviews
+            ("I1", "Harrison interview", .mediumShot, "A-cam + B-cam", "Sun-Interview", "Restaurant (quiet space)", "Seated, standard interview setup", "~30-45 min, EVP focus", false),
+            ("I2", "Matt interview", .mediumShot, "A-cam + B-cam", "Sun-Interview", "Restaurant (quiet space)", "Seated, standard interview setup", "~30-45 min, emotional/vision focus", false),
+            ("I3", "Joint Q&A — Matt & Harrison", .twoShot, "Wide + singles", "Sun-Interview", "Restaurant (quiet space)", "Side by side or angled", "10-15 min, conversational", false),
+            // Monday — The Rush (FX6 Handheld)
+            ("B1", "Front counter action", .handheld, "Sony FX6", "Mon-Rush", "Restaurant front counter", "Hands on register, food handoff, bagging orders", "No faces, just motion and speed", false),
+            ("B2", "Kitchen hustle", .handheld, "Sony FX6", "Mon-Rush", "Restaurant kitchen", "Prep, cooking, plating. Tight on hands and product", "Frenetic energy, the rush is real", false),
+            ("B3", "Insert details — chaos texture", .insert, "Sony FX6", "Mon-Rush", "Restaurant kitchen", "Wrapping sandwiches, sauce bottles, timers, ticket printers", "Texture of the chaos", false),
+            ("B4", "Station movement — bodies in motion", .handheld, "Sony FX6", "Mon-Rush", "Restaurant", "Team members moving between stations", "Controlled chaos, no faces. Whip pans", false),
+            ("B5", "Order staging — assembly line", .handheld, "Sony FX6", "Mon-Rush", "Restaurant", "Hands assembling orders, stacking trays, bags sliding", "The output of the machine", false),
+            // Monday — The System (Ronin 4D Stabilized)
+            ("B6", "Team serving guests", .steadicam, "DJI Ronin 4D", "Mon-System", "Restaurant", "Smiling, eye contact, purpose. Faces visible", "The system is working. Slow push", false),
+            ("B7", "Register OTS — hero shot", .overTheShoulder, "DJI Ronin 4D", "Mon-System", "Restaurant front counter", "Over shoulder of customer, employee smiling, kitchen behind", "Hero shot. Never see customer face. Slow dolly", false),
+            ("B8", "Culture moments — huddles, high-fives", .steadicam, "DJI Ronin 4D", "Mon-System", "Restaurant", "Huddle, high-five, training. Faces, smiles, connection", "This is why talent matters", false),
+            ("B9", "Polished details — name tags, uniforms", .closeUp, "DJI Ronin 4D, 48fps", "Mon-System", "Restaurant", "Name tags, uniforms, hands at work", "Everything in its place", false),
+            ("B10", "Exterior / Copley Square", .establishing, "DJI Ronin 4D", "Mon-System", "Copley Square exterior", "Restaurant signage, city life, establishing", "The world outside the system. Slow pan", false),
+            ("B11", "Matt & Harrison candids", .handheld, "", "Mon-System", "Restaurant", "Walking the floor, talking to team, in their element", "Key opener scene — not interview. Documentary style", false),
+            // Transitions
+            ("T1", "Receipt pull — transition out", .closeUp, "Sony FX6", "Transition", "Restaurant", "CU receipt printer. Receipt prints, hand pulls toward camera. Paper fills frame", "TRANSITION OUT: match cut to T1B", false),
+            ("T1B", "Easel pad reveal — transition in", .wideShot, "Sony FX6", "Transition", "Restaurant", "Looking at easel pad. Employee peels page up. Camera pulls back revealing meeting", "TRANSITION IN: match from T1", false),
+            ("T2", "Plexiglass sticky note push — closing", .dolly, "DJI Ronin 4D, dana dolly", "Transition", "Restaurant", "Camera behind plexiglass. Team sticks notes. Final note covers lens. Blackout", "CLOSING SHOT — final frame of edit", false),
+        ]
+        
+        for (i, s) in shots.enumerated() {
+            let shot = ShotListItem(
+                shotNumber: s.0,
+                title: s.1,
+                shotType: s.2,
+                lens: s.3,
+                shotDescription: s.6,
+                notes: s.7,
+                orderIndex: i,
+                scene: s.4,
+                location: s.5,
+                project: project
+            )
+            shot.isCompleted = s.8
+            context.insert(shot)
+        }
+        
+        // MARK: - Document
+        let doc = ImportedDocument(
+            name: "Boston-Shoot-Day-Package.pdf",
+            documentType: .pdf,
+            fileData: generateSamplePDF(),
+            folderName: "General",
+            project: project
+        )
+        context.insert(doc)
+        
+        // MARK: - Folders
+        let folder1 = ProjectFolder(name: "Scripts", project: project)
+        let folder2 = ProjectFolder(name: "B-Roll Selects", project: project)
+        let folder3 = ProjectFolder(name: "Interview Transcripts", project: project)
         context.insert(folder1)
         context.insert(folder2)
         context.insert(folder3)
