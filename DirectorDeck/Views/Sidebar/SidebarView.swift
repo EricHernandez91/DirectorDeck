@@ -19,14 +19,14 @@ struct SidebarView: View {
                                 .frame(width: 38, height: 38)
                                 .overlay {
                                     Text(String(project.name.prefix(1)).uppercased())
-                                        .font(.system(.callout, design: .rounded, weight: .bold))
+                                        .font(.system(size: 16, weight: .bold))
                                         .foregroundStyle(.white)
                                 }
                                 .shadow(color: DDTheme.teal.opacity(0.3), radius: 6, y: 2)
                             
                             VStack(alignment: .leading, spacing: 3) {
                                 Text(project.name)
-                                    .font(.system(.body, design: .rounded, weight: .semibold))
+                                    .font(.system(size: 15, weight: .semibold))
                                 Text(project.projectDescription.isEmpty ? "No description" : project.projectDescription)
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
@@ -40,8 +40,8 @@ struct SidebarView: View {
             } header: {
                 HStack {
                     Text("PROJECTS")
-                        .font(.system(.caption2, design: .rounded, weight: .semibold))
-                        .foregroundStyle(.secondary.opacity(0.6))
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(.white.opacity(0.4))
                         .tracking(1.5)
                     Spacer()
                     Button(action: { showNewProject = true }) {

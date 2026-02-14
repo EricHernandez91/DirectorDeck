@@ -30,53 +30,49 @@ struct ShootDayView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Progress header card
+            // Progress header
             VStack(spacing: 20) {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("SHOOT DAY")
-                            .font(.system(.caption, design: .rounded, weight: .bold))
+                            .font(.system(size: 11, weight: .bold))
                             .foregroundStyle(DDTheme.teal)
                             .tracking(2)
                         Text(project.name)
-                            .font(.system(.title, design: .rounded, weight: .bold))
+                            .font(.system(size: 28, weight: .bold))
                     }
                     
                     Spacer()
                     
-                    // Progress ring
+                    // Progress ring - 80pt, 6pt stroke
                     ZStack {
                         Circle()
-                            .stroke(Color.white.opacity(0.06), lineWidth: 8)
+                            .stroke(Color.white.opacity(0.06), lineWidth: 6)
                         Circle()
                             .trim(from: 0, to: progress)
                             .stroke(
                                 DDTheme.tealGradient,
-                                style: StrokeStyle(lineWidth: 8, lineCap: .round)
+                                style: StrokeStyle(lineWidth: 6, lineCap: .round)
                             )
                             .rotationEffect(.degrees(-90))
                             .animation(.spring(response: 0.6, dampingFraction: 0.8), value: progress)
-                        VStack(spacing: 0) {
-                            Text("\(completedCount)")
-                                .font(.system(.title2, design: .rounded, weight: .bold))
-                            Text("of \(totalCount)")
-                                .font(.system(.caption2, design: .rounded))
-                                .foregroundStyle(.secondary)
-                        }
+                        Text("\(Int(progress * 100))%")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundStyle(.white)
                     }
-                    .frame(width: 90, height: 90)
+                    .frame(width: 80, height: 80)
                 }
                 
-                // Filter pills
+                // Filter pills - 40pt height
                 HStack(spacing: 10) {
                     ForEach(ShootDayFilter.allCases, id: \.self) { f in
                         Button {
                             withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) { filter = f }
                         } label: {
                             Text(f.rawValue)
-                                .font(.system(.subheadline, design: .rounded, weight: .medium))
-                                .padding(.horizontal, 20)
-                                .padding(.vertical, 10)
+                                .font(.system(size: 15, weight: .medium))
+                                .padding(.horizontal, 16)
+                                .frame(height: 40)
                                 .foregroundStyle(filter == f ? .white : .secondary)
                                 .background {
                                     if filter == f {
@@ -102,13 +98,13 @@ struct ShootDayView: View {
                     VStack(spacing: 16) {
                         Image(systemName: "checkmark.seal.fill")
                             .font(.system(size: 72))
-                            .foregroundStyle(.green.gradient)
-                            .shadow(color: .green.opacity(0.4), radius: 20)
+                            .foregroundStyle(DDTheme.success.gradient)
+                            .shadow(color: DDTheme.success.opacity(0.4), radius: 20)
                             .scaleEffect(showCelebration ? 1.0 : 0.5)
                             .opacity(showCelebration ? 1 : 0)
                             .animation(.spring(response: 0.5, dampingFraction: 0.6), value: showCelebration)
                         Text("All shots completed!")
-                            .font(.system(.title2, design: .rounded, weight: .bold))
+                            .font(.system(size: 22, weight: .bold))
                         Text("Great work on set today 🎬")
                             .foregroundStyle(.secondary)
                     }
@@ -144,7 +140,7 @@ struct ShootDayShotCard: View {
     
     var body: some View {
         HStack(spacing: 16) {
-            // Checkbox
+            // Checkbox - 44pt minimum tap target
             Button {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                     shot.isCompleted.toggle()
@@ -156,69 +152,53 @@ struct ShootDayShotCard: View {
             } label: {
                 ZStack {
                     Circle()
-                        .fill(shot.isCompleted ? DDTheme.green.opacity(0.15) : Color.white.opacity(0.04))
-                        .frame(width: 52, height: 52)
+                        .fill(shot.isCompleted ? DDTheme.success : Color.clear)
+                        .frame(width: 44, height: 44)
                         .overlay(
-                            Circle().stroke(shot.isCompleted ? DDTheme.green.opacity(0.3) : DDTheme.cardBorder, lineWidth: 1)
+                            Circle().stroke(shot.isCompleted ? DDTheme.success : DDTheme.teal, lineWidth: shot.isCompleted ? 0 : 2)
                         )
-                    Image(systemName: shot.isCompleted ? "checkmark" : "")
-                        .font(.system(size: 22, weight: .bold))
-                        .foregroundStyle(DDTheme.green)
-                        .scaleEffect(justToggled ? 1.3 : 1.0)
-                        .animation(.spring(response: 0.25, dampingFraction: 0.5), value: justToggled)
+                    if shot.isCompleted {
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 20, weight: .bold))
+                            .foregroundStyle(.white)
+                            .scaleEffect(justToggled ? 1.3 : 1.0)
+                            .animation(.spring(response: 0.25, dampingFraction: 0.5), value: justToggled)
+                    }
                 }
             }
             .buttonStyle(.plain)
-            
-            // Thumbnail
-            if let data = shot.imageData, let uiImage = UIImage(data: data) {
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 80, height: 56)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-            }
             
             // Shot info
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 10) {
                     if !shot.shotNumber.isEmpty {
                         Text(shot.shotNumber)
-                            .font(.system(.caption, design: .rounded, weight: .bold))
-                            .foregroundStyle(DDTheme.teal)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 4)
-                            .background(DDTheme.teal.opacity(0.12), in: Capsule())
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(DDTheme.teal, in: Capsule())
                     }
                     Text(shot.title)
-                        .font(.system(.headline, design: .rounded))
+                        .font(.system(size: 18, weight: .semibold))
                         .foregroundStyle(shot.isCompleted ? .secondary : .primary)
                 }
                 
-                HStack(spacing: 14) {
-                    Label(shot.shotType.rawValue, systemImage: "camera.fill")
+                HStack(spacing: 6) {
+                    PillView(text: shot.shotType.rawValue, color: DDTheme.mutedBlueGray)
                     if !shot.lens.isEmpty {
-                        Label(shot.lens, systemImage: "circle.circle")
+                        PillView(text: shot.lens)
                     }
                     if !shot.scene.isEmpty {
-                        Label(shot.scene, systemImage: "film")
+                        PillView(text: shot.scene, color: DDTheme.amber, background: DDTheme.amber.opacity(0.15))
                     }
-                }
-                .font(.caption)
-                .foregroundStyle(.secondary.opacity(0.7))
-                
-                if !shot.shotDescription.isEmpty {
-                    Text(shot.shotDescription)
-                        .font(.caption)
-                        .foregroundStyle(.secondary.opacity(0.5))
-                        .lineLimit(2)
                 }
             }
             
             Spacer()
         }
         .padding(16)
-        .dashboardCard(cornerRadius: 20)
+        .dashboardCard()
         .opacity(shot.isCompleted ? 0.6 : 1)
         .animation(.spring(response: 0.3, dampingFraction: 0.8), value: shot.isCompleted)
     }

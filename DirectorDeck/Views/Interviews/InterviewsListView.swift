@@ -35,6 +35,7 @@ struct InterviewsListView: View {
                 }
             }
         }
+        .background(DDTheme.deepBackground)
         .navigationTitle("Interviews")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -67,13 +68,13 @@ struct InterviewsListView: View {
                         .frame(width: 36, height: 36)
                         .overlay {
                             Text(String(subject.name.prefix(1)).uppercased())
-                                .font(.system(.caption, design: .rounded, weight: .bold))
+                                .font(.system(size: 14, weight: .bold))
                                 .foregroundStyle(.white)
                         }
                     
                     VStack(alignment: .leading, spacing: 3) {
                         Text(subject.name)
-                            .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                            .font(.system(size: 15, weight: .semibold))
                         if !subject.role.isEmpty {
                             Text(subject.role)
                                 .font(.caption2)
@@ -87,7 +88,7 @@ struct InterviewsListView: View {
                                     .tint(DDTheme.teal)
                                     .frame(width: 50)
                                 Text("\(asked)/\(total)")
-                                    .font(.system(.caption2, design: .rounded, weight: .medium))
+                                    .font(.system(size: 11, weight: .medium))
                                     .foregroundStyle(DDTheme.teal)
                             }
                         }
@@ -113,42 +114,43 @@ struct InterviewQuestionsView: View {
     @State private var newQuestionText = ""
     @State private var editingQuestion: InterviewQuestion?
     
+    var askedCount: Int { subject.questions.filter(\.isAsked).count }
+    var totalCount: Int { subject.questions.count }
+    
     var body: some View {
         VStack(spacing: 0) {
-            // Header with glass effect
+            // Header
             VStack(alignment: .leading, spacing: 8) {
                 Text(subject.name)
-                    .font(.system(.title2, design: .rounded, weight: .bold))
+                    .font(.system(size: 22, weight: .bold))
                 if !subject.role.isEmpty {
                     Text(subject.role)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
-                let asked = subject.questions.filter(\.isAsked).count
-                let total = subject.questions.count
-                if total > 0 {
+                if totalCount > 0 {
                     VStack(alignment: .leading, spacing: 4) {
-                        ProgressView(value: Double(asked), total: Double(total))
+                        ProgressView(value: Double(askedCount), total: Double(totalCount))
                             .tint(DDTheme.teal)
-                        Text("\(asked) of \(total) questions asked")
-                            .font(.system(.caption, design: .rounded))
+                        Text("\(askedCount) of \(totalCount) questions asked")
+                            .font(.system(size: 13))
                             .foregroundStyle(.secondary)
                     }
                 }
             }
             .padding()
             .frame(maxWidth: .infinity, alignment: .leading)
-            .liquidGlass(cornerRadius: 0)
+            .background(DDTheme.cardGradient)
             
-            // Questions list
-            List {
-                ForEach(subject.sortedQuestions) { question in
-                    QuestionRow(question: question, onEdit: { editingQuestion = question })
+            // Questions as cards
+            ScrollView {
+                LazyVStack(spacing: 10) {
+                    ForEach(subject.sortedQuestions) { question in
+                        QuestionCardRow(question: question, onEdit: { editingQuestion = question })
+                    }
                 }
-                .onMove(perform: moveQuestions)
-                .onDelete(perform: deleteQuestions)
+                .padding()
             }
-            .listStyle(.plain)
             
             Divider()
             
@@ -159,7 +161,7 @@ struct InterviewQuestionsView: View {
                     .font(.title3)
                 TextField("Add a question...", text: $newQuestionText)
                     .textFieldStyle(.plain)
-                    .font(.system(.body, design: .rounded))
+                    .font(.system(size: 16))
                     .onSubmit(addQuestion)
                 Button("Add", action: addQuestion)
                     .disabled(newQuestionText.isEmpty)
@@ -168,6 +170,7 @@ struct InterviewQuestionsView: View {
             }
             .padding()
         }
+        .background(DDTheme.deepBackground)
         .sheet(item: $editingQuestion) { question in
             EditQuestionSheet(question: question)
         }
@@ -179,66 +182,56 @@ struct InterviewQuestionsView: View {
         modelContext.insert(q)
         newQuestionText = ""
     }
-    
-    private func moveQuestions(from source: IndexSet, to destination: Int) {
-        var sorted = subject.sortedQuestions
-        sorted.move(fromOffsets: source, toOffset: destination)
-        for (i, q) in sorted.enumerated() {
-            q.orderIndex = i
-        }
-    }
-    
-    private func deleteQuestions(at offsets: IndexSet) {
-        let sorted = subject.sortedQuestions
-        for index in offsets {
-            modelContext.delete(sorted[index])
-        }
-    }
 }
 
-struct QuestionRow: View {
+struct QuestionCardRow: View {
     @Bindable var question: InterviewQuestion
     let onEdit: () -> Void
     
     var body: some View {
         HStack(spacing: 12) {
-            Button {
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                    question.isAsked.toggle()
-                }
-            } label: {
-                ZStack {
-                    Circle()
-                        .fill(question.isAsked ? DDTheme.teal.opacity(0.15) : Color.clear)
-                        .frame(width: 30, height: 30)
-                    Image(systemName: question.isAsked ? "checkmark.circle.fill" : "circle")
-                        .font(.title3)
-                        .foregroundStyle(question.isAsked ? DDTheme.teal : Color.secondary)
-                }
-            }
-            .buttonStyle(.plain)
+            // Drag handle
+            Image(systemName: "line.3.horizontal")
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.2))
             
-            VStack(alignment: .leading, spacing: 3) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(question.text)
-                    .font(.system(.body, design: .rounded))
-                    .strikethrough(question.isAsked, color: .secondary.opacity(0.5))
+                    .font(.system(size: 16))
                     .foregroundStyle(question.isAsked ? .secondary : .primary)
                 if !question.notes.isEmpty {
                     Text(question.notes)
-                        .font(.caption)
-                        .foregroundStyle(.secondary.opacity(0.7))
+                        .font(.system(size: 13))
+                        .foregroundStyle(.white.opacity(0.5))
                 }
             }
             
             Spacer()
             
+            // Asked toggle pill
+            Button {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                    question.isAsked.toggle()
+                }
+            } label: {
+                Text(question.isAsked ? "Asked" : "Not Asked")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(question.isAsked ? .white : .secondary)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                    .background(question.isAsked ? DDTheme.teal : Color.white.opacity(0.06), in: Capsule())
+            }
+            .buttonStyle(.plain)
+            
             Button(action: onEdit) {
                 Image(systemName: "pencil.circle")
-                    .foregroundStyle(.secondary.opacity(0.7))
+                    .foregroundStyle(.white.opacity(0.4))
             }
             .buttonStyle(.plain)
         }
-        .padding(.vertical, 4)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .dashboardCard()
         .animation(.spring(response: 0.3, dampingFraction: 0.8), value: question.isAsked)
     }
 }

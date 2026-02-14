@@ -9,57 +9,25 @@ struct ProjectSectionsView: View {
     
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 32) {
-                // Project header
-                VStack(alignment: .leading, spacing: 14) {
-                    HStack(spacing: 14) {
-                        Circle()
-                            .fill(DDTheme.tealGradient)
-                            .frame(width: 52, height: 52)
-                            .overlay {
-                                Text(String(project.name.prefix(1)).uppercased())
-                                    .font(.system(.title3, design: .rounded, weight: .bold))
-                                    .foregroundStyle(.white)
-                            }
-                            .shadow(color: DDTheme.teal.opacity(0.25), radius: 10, y: 3)
-                        
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(project.name)
-                                .font(.system(.title2, design: .rounded, weight: .bold))
-                            if !project.projectDescription.isEmpty {
-                                Text(project.projectDescription)
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
-                                    .lineLimit(2)
-                            }
-                        }
-                        Spacer()
-                    }
-                }
-                .padding(.bottom, 4)
-                
-                // Production
+            VStack(alignment: .leading, spacing: 24) {
+                // PRODUCTION
                 sectionGroup(title: "PRODUCTION") {
                     sectionRow(.briefs, icon: "doc.richtext", label: "Creative Briefs", count: project.briefs.count)
-                    thinDivider()
                     sectionRow(.interviews, icon: "person.bubble", label: "Interviews", count: project.interviewSubjects.count)
-                    thinDivider()
                     sectionRow(.storyboards, icon: "rectangle.split.2x2", label: "Storyboards", count: project.storyboardCards.count)
-                    thinDivider()
                     sectionRow(.shotList, icon: "checklist", label: "Shot List", count: project.shotListItems.count)
                 }
                 
-                // On Set
+                // ON SET
                 sectionGroup(title: "ON SET") {
                     sectionRow(.shootDay, icon: "camera.viewfinder", label: "Shoot Day Mode", count: nil)
                 }
                 
-                // Documents
+                // DOCUMENTS
                 sectionGroup(title: "DOCUMENTS") {
                     sectionRow(.documents, icon: "archivebox", label: "All Documents", count: project.documents.count)
                     
-                    ForEach(Array(project.folders.enumerated()), id: \.element.id) { index, folder in
-                        thinDivider()
+                    ForEach(Array(project.folders.enumerated()), id: \.element.id) { _, folder in
                         sectionRow(.folder(folder), icon: "folder.fill", label: folder.name, count: nil)
                     }
                 }
@@ -69,6 +37,7 @@ struct ProjectSectionsView: View {
         }
         .background(DDTheme.deepBackground)
         .navigationTitle(project.name)
+        .navigationSplitViewColumnWidth(min: 240, ideal: 280, max: 320)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: { showNewFolder = true }) {
@@ -89,56 +58,50 @@ struct ProjectSectionsView: View {
     }
     
     private func sectionGroup<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 0) {
             SectionLabel(title: title)
                 .padding(.leading, 4)
+                .padding(.bottom, 12)
             
-            VStack(spacing: 0) {
-                content()
-            }
-            .dashboardCard()
+            content()
         }
     }
     
-    private func thinDivider() -> some View {
-        Rectangle()
-            .fill(Color.white.opacity(0.04))
-            .frame(height: 1)
-            .padding(.leading, 56)
-    }
-    
     private func sectionRow(_ section: SidebarSection, icon: String, label: String, count: Int?) -> some View {
-        Button {
+        let isSelected = selectedSection == section
+        return Button {
             selectedSection = section
         } label: {
-            HStack(spacing: 14) {
+            HStack(spacing: 12) {
                 Image(systemName: icon)
-                    .font(.body)
+                    .font(.system(size: 18))
                     .foregroundStyle(DDTheme.teal)
-                    .frame(width: 28)
+                    .frame(width: 24)
                 
                 Text(label)
-                    .font(.system(.body, design: .rounded, weight: .medium))
+                    .font(.system(size: 17, weight: .medium))
                     .foregroundStyle(.primary)
+                    .lineLimit(1)
                 
                 Spacer()
                 
                 if let count {
                     Text("\(count)")
-                        .font(.system(.caption, design: .rounded, weight: .bold))
-                        .foregroundStyle(DDTheme.teal)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 4)
-                        .background(DDTheme.teal.opacity(0.1), in: Capsule())
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundStyle(Color(hex: "#1A1A25"))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(DDTheme.amber, in: Capsule())
                 }
-                
-                Image(systemName: "chevron.right")
-                    .font(.caption2.weight(.medium))
-                    .foregroundStyle(.secondary.opacity(0.35))
             }
-            .padding(.horizontal, 18)
-            .padding(.vertical, 16)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 14)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(isSelected ? DDTheme.teal.opacity(0.1) : Color.clear)
+            )
         }
         .buttonStyle(.plain)
+        .animation(.easeInOut(duration: 0.2), value: isSelected)
     }
 }

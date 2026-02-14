@@ -13,8 +13,8 @@ struct StoryboardGridView: View {
     }
     
     let columns = [
-        GridItem(.flexible(), spacing: 20),
-        GridItem(.flexible(), spacing: 20)
+        GridItem(.flexible(), spacing: 12),
+        GridItem(.flexible(), spacing: 12)
     ]
     
     var body: some View {
@@ -29,7 +29,7 @@ struct StoryboardGridView: View {
                 )
             } else {
                 ScrollView {
-                    LazyVGrid(columns: columns, spacing: 20) {
+                    LazyVGrid(columns: columns, spacing: 12) {
                         ForEach(cards) { card in
                             StoryboardCardView(card: card)
                                 .onTapGesture { selectedCard = card }
@@ -44,6 +44,7 @@ struct StoryboardGridView: View {
                 }
             }
         }
+        .background(DDTheme.deepBackground)
         .navigationTitle("Storyboards")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -63,14 +64,13 @@ struct StoryboardGridView: View {
 
 struct StoryboardCardView: View {
     let card: StoryboardCard
-    @State private var isPressed = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Image area
+            // Image area - 16:9
             ZStack {
                 Rectangle()
-                    .fill(Color(.tertiarySystemBackground))
+                    .fill(DDTheme.pillBackground)
                     .aspectRatio(16/9, contentMode: .fit)
                 
                 if let data = card.imageData, let uiImage = UIImage(data: data) {
@@ -90,63 +90,38 @@ struct StoryboardCardView: View {
                             .foregroundStyle(.tertiary)
                     }
                 }
-                
-                // Order badge — liquid glass pill
-                VStack {
-                    HStack {
-                        Text("#\(card.orderIndex + 1)")
-                            .font(.system(.caption2, design: .rounded, weight: .bold))
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 5)
-                            .liquidGlassPill()
-
-                        Spacer()
-                    }
-                    Spacer()
-                }
-                .padding(10)
             }
-            .clipShape(UnevenRoundedRectangle(topLeadingRadius: 20, topTrailingRadius: 20))
+            .clipShape(UnevenRoundedRectangle(topLeadingRadius: 16, topTrailingRadius: 16))
             
             // Info area
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 6) {
                 Text(card.title)
-                    .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                    .font(.system(size: 15, weight: .semibold))
                     .lineLimit(1)
                 
                 if !card.sceneDescription.isEmpty {
                     Text(card.sceneDescription)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(.system(size: 13))
+                        .foregroundStyle(.white.opacity(0.5))
                         .lineLimit(2)
                 }
                 
                 if !card.cameraAngle.isEmpty || !card.duration.isEmpty {
-                    HStack(spacing: 14) {
+                    HStack(spacing: 6) {
                         if !card.cameraAngle.isEmpty {
-                            Label(card.cameraAngle, systemImage: "camera.fill")
-                                .font(.caption2)
-                                .foregroundStyle(DDTheme.teal)
+                            PillView(text: card.cameraAngle, color: DDTheme.teal)
                         }
                         if !card.duration.isEmpty {
-                            Label(card.duration, systemImage: "clock.fill")
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
+                            PillView(text: card.duration, color: .secondary)
                         }
                     }
                     .padding(.top, 2)
                 }
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 14)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
         }
-        .dashboardCard(cornerRadius: 20)
-        .scaleEffect(isPressed ? 0.97 : 1)
-        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isPressed)
-        .onLongPressGesture(minimumDuration: .infinity, pressing: { pressing in
-            isPressed = pressing
-        }, perform: {})
+        .dashboardCard(cornerRadius: 16)
     }
 }
 
@@ -266,15 +241,15 @@ struct StoryboardCardDetailSheet: View {
                 VStack(spacing: 20) {
                     ZStack {
                         Rectangle()
-                            .fill(Color(.tertiarySystemBackground))
+                            .fill(DDTheme.pillBackground)
                             .aspectRatio(16/9, contentMode: .fit)
-                            .clipShape(RoundedRectangle(cornerRadius: 20))
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
                         
                         if let data = card.imageData, let uiImage = UIImage(data: data) {
                             Image(uiImage: uiImage)
                                 .resizable()
                                 .scaledToFit()
-                                .clipShape(RoundedRectangle(cornerRadius: 20))
+                                .clipShape(RoundedRectangle(cornerRadius: 16))
                         } else {
                             Button(action: { showImagePicker = true }) {
                                 VStack(spacing: 8) {
@@ -289,7 +264,7 @@ struct StoryboardCardDetailSheet: View {
                     
                     VStack(spacing: 16) {
                         TextField("Title", text: $card.title)
-                            .font(.system(.title2, design: .rounded, weight: .bold))
+                            .font(.system(size: 22, weight: .bold))
                             .textFieldStyle(.plain)
                         
                         LabeledContent("Description") {
@@ -309,11 +284,11 @@ struct StoryboardCardDetailSheet: View {
                         
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Notes")
-                                .font(.system(.headline, design: .rounded))
+                                .font(.system(.headline))
                             TextEditor(text: $card.notes)
                                 .frame(minHeight: 100)
                                 .scrollContentBackground(.hidden)
-                                .background(Color(.tertiarySystemBackground), in: RoundedRectangle(cornerRadius: 8))
+                                .background(DDTheme.pillBackground, in: RoundedRectangle(cornerRadius: 8))
                         }
                     }
                     .padding(.horizontal)

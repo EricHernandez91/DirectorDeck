@@ -44,6 +44,7 @@ struct ShotListView: View {
                 .searchable(text: $searchText, prompt: "Search shots")
             }
         }
+        .background(DDTheme.deepBackground)
         .navigationTitle("Shot List (\(project.shotListItems.count))")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -76,65 +77,65 @@ struct ShotListRow: View {
     @Bindable var shot: ShotListItem
     
     var body: some View {
-        HStack(spacing: 16) {
-            // Shot number badge - prominent colored circle
+        HStack(spacing: 12) {
+            // Shot number badge - teal circle
             if !shot.shotNumber.isEmpty {
                 ZStack {
                     Circle()
-                        .fill(DDTheme.teal.opacity(0.15))
-                        .frame(width: 44, height: 44)
+                        .fill(DDTheme.teal)
+                        .frame(width: 32, height: 32)
                     Text(shot.shotNumber)
-                        .font(.system(.caption, design: .rounded, weight: .bold))
-                        .foregroundStyle(DDTheme.teal)
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundStyle(.white)
                 }
-            }
-            
-            // Completion toggle
-            Button {
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                    shot.isCompleted.toggle()
-                }
-            } label: {
-                Image(systemName: shot.isCompleted ? "checkmark.circle.fill" : "circle")
-                    .font(.title3)
-                    .foregroundStyle(shot.isCompleted ? DDTheme.green : Color.secondary.opacity(0.4))
-            }
-            .buttonStyle(.plain)
-            
-            // Thumbnail
-            if let data = shot.imageData, let uiImage = UIImage(data: data) {
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 64, height: 42)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
             }
             
             // Info
             VStack(alignment: .leading, spacing: 6) {
                 Text(shot.title)
-                    .font(.system(.body, design: .rounded, weight: .semibold))
-                    .foregroundStyle(shot.isCompleted ? .secondary : .primary)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
                 
-                HStack(spacing: 14) {
-                    Label(shot.shotType.rawValue, systemImage: "camera.fill")
+                HStack(spacing: 6) {
+                    PillView(text: shot.shotType.rawValue, color: DDTheme.mutedBlueGray)
                     if !shot.lens.isEmpty {
-                        Label(shot.lens, systemImage: "circle.circle")
+                        PillView(text: shot.lens)
                     }
                     if !shot.scene.isEmpty {
-                        Label(shot.scene, systemImage: "film")
+                        PillView(text: shot.scene, color: DDTheme.amber, background: DDTheme.amber.opacity(0.15))
                     }
                 }
-                .font(.caption)
-                .foregroundStyle(.secondary.opacity(0.7))
             }
             
             Spacer()
+            
+            // Checkbox
+            Button {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                    shot.isCompleted.toggle()
+                }
+            } label: {
+                ZStack {
+                    Circle()
+                        .fill(shot.isCompleted ? DDTheme.success : Color.clear)
+                        .frame(width: 28, height: 28)
+                        .overlay(
+                            Circle().stroke(shot.isCompleted ? DDTheme.success : Color.white.opacity(0.2), lineWidth: 1.5)
+                        )
+                    if shot.isCompleted {
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 13, weight: .bold))
+                            .foregroundStyle(.white)
+                    }
+                }
+            }
+            .buttonStyle(.plain)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 14)
         .dashboardCard()
-        .opacity(shot.isCompleted ? 0.55 : 1)
+        .opacity(shot.isCompleted ? 0.5 : 1)
         .animation(.spring(response: 0.3, dampingFraction: 0.8), value: shot.isCompleted)
     }
 }

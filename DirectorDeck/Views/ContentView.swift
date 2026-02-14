@@ -21,6 +21,7 @@ struct ContentView: View {
                 selectedSection: $selectedSection,
                 showNewProject: $showNewProject
             )
+            .navigationSplitViewColumnWidth(min: 200, ideal: 220, max: 260)
         } content: {
             if let project = selectedProject {
                 ProjectSectionsView(
@@ -47,8 +48,10 @@ struct ContentView: View {
                 )
             }
         }
+        .navigationSplitViewStyle(.balanced)
         .tint(DDTheme.teal)
         .preferredColorScheme(.dark)
+        .animation(.easeInOut(duration: 0.2), value: selectedSection)
         .onAppear {
             SampleDataService.loadIfNeeded(context: modelContext)
             if isScreenshotTour {

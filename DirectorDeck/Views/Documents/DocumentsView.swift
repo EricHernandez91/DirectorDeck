@@ -21,13 +21,30 @@ struct DocumentsView: View {
     var body: some View {
         Group {
             if documents.isEmpty {
-                EmptyStateView(
-                    icon: "folder.fill",
-                    title: "No Documents",
-                    subtitle: "Import PDFs, images, and other references",
-                    action: { showDocumentPicker = true },
-                    actionLabel: "Import"
-                )
+                VStack(spacing: 20) {
+                    Spacer()
+                    Image(systemName: "doc.text.magnifyingglass")
+                        .font(.system(size: 56))
+                        .foregroundStyle(.white.opacity(0.15))
+                    Text("No Documents Yet")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundStyle(.white.opacity(0.6))
+                    Text("Import PDFs, images, and other references")
+                        .font(.system(size: 14))
+                        .foregroundStyle(.white.opacity(0.35))
+                    
+                    Button(action: { showDocumentPicker = true }) {
+                        Label("Import Document", systemImage: "plus.circle.fill")
+                            .font(.system(size: 16, weight: .semibold))
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 12)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(DDTheme.teal)
+                    .padding(.top, 8)
+                    
+                    Spacer()
+                }
             } else {
                 ScrollView {
                     LazyVStack(spacing: 8) {
@@ -41,6 +58,7 @@ struct DocumentsView: View {
                 }
             }
         }
+        .background(DDTheme.deepBackground)
         .navigationTitle(folder?.name ?? "Documents")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -91,9 +109,9 @@ struct DocumentRow: View {
     var body: some View {
         HStack(spacing: 14) {
             ZStack {
-                RoundedRectangle(cornerRadius: 12)
+                RoundedRectangle(cornerRadius: 10)
                     .fill(iconColor.opacity(0.12))
-                    .frame(width: 48, height: 48)
+                    .frame(width: 44, height: 44)
                 Image(systemName: iconName)
                     .font(.title3)
                     .foregroundStyle(iconColor)
@@ -101,26 +119,21 @@ struct DocumentRow: View {
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(document.name)
-                    .font(.system(.body, design: .rounded, weight: .medium))
+                    .font(.system(size: 15, weight: .medium))
                     .lineLimit(1)
-                HStack(spacing: 6) {
-                    Text(document.documentType.rawValue.uppercased())
-                        .font(.system(.caption2, design: .rounded, weight: .semibold))
-                        .foregroundStyle(iconColor)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(iconColor.opacity(0.1), in: Capsule())
+                HStack(spacing: 8) {
                     Text(document.createdAt, style: .date)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary.opacity(0.7))
+                        .font(.system(size: 12))
+                        .foregroundStyle(.white.opacity(0.4))
+                    if let data = document.fileData {
+                        Text(ByteCountFormatter.string(fromByteCount: Int64(data.count), countStyle: .file))
+                            .font(.system(size: 12))
+                            .foregroundStyle(.white.opacity(0.3))
+                    }
                 }
             }
             
             Spacer()
-            
-            Image(systemName: "chevron.right")
-                .font(.caption2)
-                .foregroundStyle(.secondary.opacity(0.5))
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
@@ -138,7 +151,7 @@ struct DocumentRow: View {
     var iconColor: Color {
         switch document.documentType {
         case .pdf: return .red
-        case .image: return DDTheme.teal
+        case .image: return .blue
         case .other: return .gray
         }
     }

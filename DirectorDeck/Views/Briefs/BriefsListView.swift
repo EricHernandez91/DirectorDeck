@@ -26,6 +26,7 @@ struct BriefsListView: View {
                 HSplitContent(briefs: briefs, selectedBrief: $selectedBrief, onDelete: deleteBrief)
             }
         }
+        .background(DDTheme.deepBackground)
         .navigationTitle("Creative Briefs")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -69,7 +70,7 @@ private struct HSplitContent: View {
                         
                         VStack(alignment: .leading, spacing: 4) {
                             Text(brief.title)
-                                .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                                .font(.system(size: 15, weight: .semibold))
                             Text(brief.updatedAt, style: .relative)
                                 .font(.caption2)
                                 .foregroundStyle(.secondary)
@@ -100,27 +101,35 @@ struct BriefEditorView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            HStack {
+            // Editor card
+            VStack(alignment: .leading, spacing: 16) {
                 TextField("Title", text: $brief.title)
-                    .font(.system(.title2, design: .rounded, weight: .bold))
+                    .font(.system(size: 24, weight: .bold))
                     .textFieldStyle(.plain)
-                Spacer()
+                
+                Divider().opacity(0.3)
+                
+                TextEditor(text: $brief.content)
+                    .font(.system(size: 16))
+                    .lineSpacing(8)
+                    .scrollContentBackground(.hidden)
+                    .onChange(of: brief.content) {
+                        brief.updatedAt = Date()
+                    }
+                
+                Spacer(minLength: 0)
+                
                 Text("Last edited \(brief.updatedAt, style: .relative) ago")
-                    .font(.caption)
-                    .foregroundStyle(.secondary.opacity(0.7))
+                    .font(.system(size: 12))
+                    .foregroundStyle(.white.opacity(0.4))
             }
+            .padding(DDTheme.largePadding)
+            .background(DDTheme.cardGradient)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.white.opacity(0.06), lineWidth: 0.5))
+            .shadow(color: .black.opacity(0.2), radius: 8, y: 2)
             .padding()
-            
-            Divider()
-            
-            TextEditor(text: $brief.content)
-                .font(.system(.body, design: .default))
-                .scrollContentBackground(.hidden)
-                .padding()
-                .onChange(of: brief.content) {
-                    brief.updatedAt = Date()
-                }
         }
-        .background(Color(.systemBackground))
+        .background(DDTheme.deepBackground)
     }
 }

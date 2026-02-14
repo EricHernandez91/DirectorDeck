@@ -2,20 +2,26 @@ import SwiftUI
 
 enum DDTheme {
     static let accent = Color("AccentColor")
-    static let teal = Color(red: 0, green: 0.737, blue: 0.831)
+    static let teal = Color(hex: "#00BCD4")
+    
+    // Color system
+    static let amber = Color(hex: "#F5A623")
+    static let success = Color(hex: "#4CAF50")
+    static let mutedBlueGray = Color(hex: "#7B8FA1")
     
     // Dark navy palette (not pure black)
-    static let deepBackground = Color(hex: "#0D0D14")
+    static let deepBackground = Color(hex: "#0C0C14")
     static let surfaceBackground = Color(hex: "#111118")
     static let cardStart = Color(hex: "#151520")
     static let cardEnd = Color(hex: "#1C1C28")
     static let cardBorder = Color.white.opacity(0.06)
+    static let pillBackground = Color(hex: "#1A1A25")
     
     // Accent colors
-    static let green = Color(hex: "#4CD964")
+    static let green = Color(hex: "#4CAF50")
     
-    static let cardCornerRadius: CGFloat = 16
-    static let smallCornerRadius: CGFloat = 12
+    static let cardCornerRadius: CGFloat = 12
+    static let smallCornerRadius: CGFloat = 8
     static let standardPadding: CGFloat = 16
     static let largePadding: CGFloat = 24
     static let sectionSpacing: CGFloat = 28
@@ -71,8 +77,9 @@ struct DashboardCardModifier: ViewModifier {
             .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius)
-                    .stroke(DDTheme.cardBorder, lineWidth: 1)
+                    .stroke(Color.white.opacity(0.06), lineWidth: 0.5)
             )
+            .shadow(color: .black.opacity(0.2), radius: 8, y: 2)
     }
 }
 
@@ -154,6 +161,23 @@ extension View {
     }
 }
 
+// MARK: - Pill View
+
+struct PillView: View {
+    let text: String
+    var color: Color = .white.opacity(0.7)
+    var background: Color = DDTheme.pillBackground
+    
+    var body: some View {
+        Text(text)
+            .font(.system(size: 12))
+            .foregroundStyle(color)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 3)
+            .background(background, in: RoundedRectangle(cornerRadius: 6))
+    }
+}
+
 // MARK: - Section Header
 
 struct SectionHeaderView: View {
@@ -166,7 +190,7 @@ struct SectionHeaderView: View {
                 .foregroundStyle(DDTheme.teal)
                 .font(.title3)
             Text(title)
-                .font(.system(.title3, design: .rounded, weight: .semibold))
+                .font(.system(.title3, weight: .semibold))
             Spacer()
         }
     }
@@ -177,8 +201,8 @@ struct SectionLabel: View {
     
     var body: some View {
         Text(title)
-            .font(.system(.caption, design: .rounded, weight: .semibold))
-            .foregroundStyle(.secondary.opacity(0.6))
+            .font(.system(size: 11, weight: .semibold))
+            .foregroundStyle(.white.opacity(0.4))
             .tracking(1.5)
             .textCase(.uppercase)
     }
