@@ -11,11 +11,8 @@ enum DDTheme {
     static let cardEnd = Color(hex: "#1C1C28")
     static let cardBorder = Color.white.opacity(0.06)
     
-    // Accent colors for data viz
-    static let orange = Color(hex: "#F5A623")
+    // Accent colors
     static let green = Color(hex: "#4CD964")
-    static let softBlue = Color(hex: "#5B9BD5")
-    static let purple = Color(hex: "#9B7FE6")
     
     static let cardCornerRadius: CGFloat = 16
     static let smallCornerRadius: CGFloat = 12

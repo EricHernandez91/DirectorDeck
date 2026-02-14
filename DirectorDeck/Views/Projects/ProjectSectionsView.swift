@@ -7,129 +7,65 @@ struct ProjectSectionsView: View {
     @State private var showNewFolder = false
     @State private var newFolderName = ""
     
-    private var completedShots: Int { project.shotListItems.filter(\.isCompleted).count }
-    private var totalShots: Int { project.shotListItems.count }
-    private var progress: Double { totalShots > 0 ? Double(completedShots) / Double(totalShots) : 0 }
-    
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: DDTheme.sectionSpacing) {
+            VStack(alignment: .leading, spacing: 32) {
                 // Project header
-                HStack(spacing: 14) {
-                    Circle()
-                        .fill(DDTheme.tealGradient)
-                        .frame(width: 48, height: 48)
-                        .overlay {
-                            Text(String(project.name.prefix(1)).uppercased())
-                                .font(.system(.title3, design: .rounded, weight: .bold))
-                                .foregroundStyle(.white)
+                VStack(alignment: .leading, spacing: 14) {
+                    HStack(spacing: 14) {
+                        Circle()
+                            .fill(DDTheme.tealGradient)
+                            .frame(width: 52, height: 52)
+                            .overlay {
+                                Text(String(project.name.prefix(1)).uppercased())
+                                    .font(.system(.title3, design: .rounded, weight: .bold))
+                                    .foregroundStyle(.white)
+                            }
+                            .shadow(color: DDTheme.teal.opacity(0.25), radius: 10, y: 3)
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(project.name)
+                                .font(.system(.title2, design: .rounded, weight: .bold))
+                            if !project.projectDescription.isEmpty {
+                                Text(project.projectDescription)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(2)
+                            }
                         }
-                        .shadow(color: DDTheme.teal.opacity(0.3), radius: 8, y: 2)
-                    
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(project.name)
-                            .font(.system(.title2, design: .rounded, weight: .bold))
-                        if !project.projectDescription.isEmpty {
-                            Text(project.projectDescription)
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(1)
-                        }
+                        Spacer()
                     }
-                    Spacer()
                 }
                 .padding(.bottom, 4)
                 
-                // Hero stats grid
-                LazyVGrid(columns: [
-                    GridItem(.flexible(), spacing: 12),
-                    GridItem(.flexible(), spacing: 12),
-                    GridItem(.flexible(), spacing: 12),
-                    GridItem(.flexible(), spacing: 12)
-                ], spacing: 12) {
-                    StatCard(value: "\(totalShots)", label: "Total Shots", color: DDTheme.teal)
-                    StatCard(value: "\(completedShots)", label: "Completed", color: DDTheme.green)
-                    StatCard(value: "\(project.storyboardCards.count)", label: "Storyboards", color: DDTheme.orange)
-                    StatCard(value: "\(project.documents.count)", label: "Documents", color: DDTheme.softBlue)
-                }
-                
-                // Progress card
-                if totalShots > 0 {
-                    VStack(alignment: .leading, spacing: 14) {
-                        HStack {
-                            Text("Shoot Progress")
-                                .font(.system(.subheadline, design: .rounded, weight: .semibold))
-                            Spacer()
-                            Text("\(Int(progress * 100))%")
-                                .font(.system(.title3, design: .rounded, weight: .bold))
-                                .foregroundStyle(DDTheme.teal)
-                        }
-                        
-                        // Progress bar
-                        GeometryReader { geo in
-                            ZStack(alignment: .leading) {
-                                RoundedRectangle(cornerRadius: 6)
-                                    .fill(Color.white.opacity(0.06))
-                                    .frame(height: 10)
-                                RoundedRectangle(cornerRadius: 6)
-                                    .fill(DDTheme.tealGradient)
-                                    .frame(width: geo.size.width * progress, height: 10)
-                                    .animation(.spring(response: 0.6), value: progress)
-                            }
-                        }
-                        .frame(height: 10)
-                        
-                        HStack(spacing: 16) {
-                            HStack(spacing: 6) {
-                                Circle().fill(DDTheme.green).frame(width: 8, height: 8)
-                                Text("\(completedShots) done")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                            HStack(spacing: 6) {
-                                Circle().fill(Color.white.opacity(0.2)).frame(width: 8, height: 8)
-                                Text("\(totalShots - completedShots) remaining")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                        }
-                    }
-                    .padding(18)
-                    .dashboardCard()
-                }
-                
-                // Production section
-                SectionLabel(title: "PRODUCTION")
-                
-                VStack(spacing: 2) {
+                // Production
+                sectionGroup(title: "PRODUCTION") {
                     sectionRow(.briefs, icon: "doc.richtext", label: "Creative Briefs", count: project.briefs.count)
+                    thinDivider()
                     sectionRow(.interviews, icon: "person.bubble", label: "Interviews", count: project.interviewSubjects.count)
+                    thinDivider()
                     sectionRow(.storyboards, icon: "rectangle.split.2x2", label: "Storyboards", count: project.storyboardCards.count)
+                    thinDivider()
                     sectionRow(.shotList, icon: "checklist", label: "Shot List", count: project.shotListItems.count)
                 }
-                .dashboardCard()
                 
-                // On Set section
-                SectionLabel(title: "ON SET")
-                
-                VStack(spacing: 2) {
+                // On Set
+                sectionGroup(title: "ON SET") {
                     sectionRow(.shootDay, icon: "camera.viewfinder", label: "Shoot Day Mode", count: nil)
                 }
-                .dashboardCard()
                 
-                // Documents section
-                SectionLabel(title: "DOCUMENTS")
-                
-                VStack(spacing: 2) {
+                // Documents
+                sectionGroup(title: "DOCUMENTS") {
                     sectionRow(.documents, icon: "archivebox", label: "All Documents", count: project.documents.count)
                     
-                    ForEach(project.folders) { folder in
+                    ForEach(Array(project.folders.enumerated()), id: \.element.id) { index, folder in
+                        thinDivider()
                         sectionRow(.folder(folder), icon: "folder.fill", label: folder.name, count: nil)
                     }
                 }
-                .dashboardCard()
             }
-            .padding(DDTheme.largePadding)
+            .padding(.horizontal, DDTheme.largePadding)
+            .padding(.vertical, DDTheme.largePadding)
         }
         .background(DDTheme.deepBackground)
         .navigationTitle(project.name)
@@ -150,6 +86,25 @@ struct ProjectSectionsView: View {
                 newFolderName = ""
             }
         }
+    }
+    
+    private func sectionGroup<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 14) {
+            SectionLabel(title: title)
+                .padding(.leading, 4)
+            
+            VStack(spacing: 0) {
+                content()
+            }
+            .dashboardCard()
+        }
+    }
+    
+    private func thinDivider() -> some View {
+        Rectangle()
+            .fill(Color.white.opacity(0.04))
+            .frame(height: 1)
+            .padding(.leading, 56)
     }
     
     private func sectionRow(_ section: SidebarSection, icon: String, label: String, count: Int?) -> some View {
@@ -174,47 +129,16 @@ struct ProjectSectionsView: View {
                         .foregroundStyle(DDTheme.teal)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 4)
-                        .background(DDTheme.teal.opacity(0.12), in: Capsule())
+                        .background(DDTheme.teal.opacity(0.1), in: Capsule())
                 }
                 
                 Image(systemName: "chevron.right")
-                    .font(.caption2)
-                    .foregroundStyle(.secondary.opacity(0.4))
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(.secondary.opacity(0.35))
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 14)
+            .padding(.horizontal, 18)
+            .padding(.vertical, 16)
         }
         .buttonStyle(.plain)
-    }
-}
-
-// MARK: - Stat Card
-
-struct StatCard: View {
-    let value: String
-    let label: String
-    let color: Color
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Circle()
-                .fill(color.opacity(0.15))
-                .frame(width: 36, height: 36)
-                .overlay {
-                    Circle()
-                        .fill(color)
-                        .frame(width: 10, height: 10)
-                }
-            
-            Text(value)
-                .font(.system(.title, design: .rounded, weight: .bold))
-            
-            Text(label)
-                .font(.system(.caption, design: .rounded))
-                .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(16)
-        .dashboardCard()
     }
 }
