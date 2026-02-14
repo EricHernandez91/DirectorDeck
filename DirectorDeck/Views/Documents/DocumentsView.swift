@@ -124,7 +124,7 @@ struct DocumentRow: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
-        .liquidGlass(cornerRadius: 16)
+        .dashboardCard()
     }
     
     var iconName: String {

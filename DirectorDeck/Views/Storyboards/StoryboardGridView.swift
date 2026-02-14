@@ -110,7 +110,7 @@ struct StoryboardCardView: View {
             .clipShape(UnevenRoundedRectangle(topLeadingRadius: 20, topTrailingRadius: 20))
             
             // Info area
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 8) {
                 Text(card.title)
                     .font(.system(.subheadline, design: .rounded, weight: .semibold))
                     .lineLimit(1)
@@ -122,22 +122,26 @@ struct StoryboardCardView: View {
                         .lineLimit(2)
                 }
                 
-                HStack(spacing: 12) {
-                    if !card.cameraAngle.isEmpty {
-                        Label(card.cameraAngle, systemImage: "camera.fill")
-                            .font(.caption2)
-                            .foregroundStyle(DDTheme.teal)
+                if !card.cameraAngle.isEmpty || !card.duration.isEmpty {
+                    HStack(spacing: 14) {
+                        if !card.cameraAngle.isEmpty {
+                            Label(card.cameraAngle, systemImage: "camera.fill")
+                                .font(.caption2)
+                                .foregroundStyle(DDTheme.teal)
+                        }
+                        if !card.duration.isEmpty {
+                            Label(card.duration, systemImage: "clock.fill")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
                     }
-                    if !card.duration.isEmpty {
-                        Label(card.duration, systemImage: "clock.fill")
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                    }
+                    .padding(.top, 2)
                 }
             }
-            .padding(14)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
         }
-        .liquidGlass(cornerRadius: 20)
+        .dashboardCard(cornerRadius: 20)
         .scaleEffect(isPressed ? 0.97 : 1)
         .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isPressed)
         .onLongPressGesture(minimumDuration: .infinity, pressing: { pressing in

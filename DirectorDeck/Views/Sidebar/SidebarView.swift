@@ -40,9 +40,9 @@ struct SidebarView: View {
             } header: {
                 HStack {
                     Text("PROJECTS")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                        .tracking(1.2)
+                        .font(.system(.caption2, design: .rounded, weight: .semibold))
+                        .foregroundStyle(.secondary.opacity(0.6))
+                        .tracking(1.5)
                     Spacer()
                     Button(action: { showNewProject = true }) {
                         Image(systemName: "plus.circle.fill")

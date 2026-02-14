@@ -3,22 +3,39 @@ import SwiftUI
 enum DDTheme {
     static let accent = Color("AccentColor")
     static let teal = Color(red: 0, green: 0.737, blue: 0.831)
-    static let cardBackground = Color(.secondarySystemGroupedBackground)
-    static let subtleBackground = Color(.systemGroupedBackground)
     
-    static let deepBackground = Color(red: 0.039, green: 0.039, blue: 0.059)
-    static let surfaceBackground = Color(red: 0.067, green: 0.067, blue: 0.094)
+    // Dark navy palette (not pure black)
+    static let deepBackground = Color(hex: "#0D0D14")
+    static let surfaceBackground = Color(hex: "#111118")
+    static let cardStart = Color(hex: "#151520")
+    static let cardEnd = Color(hex: "#1C1C28")
+    static let cardBorder = Color.white.opacity(0.06)
     
-    static let cardCornerRadius: CGFloat = 20
+    // Accent colors for data viz
+    static let orange = Color(hex: "#F5A623")
+    static let green = Color(hex: "#4CD964")
+    static let softBlue = Color(hex: "#5B9BD5")
+    static let purple = Color(hex: "#9B7FE6")
+    
+    static let cardCornerRadius: CGFloat = 16
     static let smallCornerRadius: CGFloat = 12
     static let standardPadding: CGFloat = 16
     static let largePadding: CGFloat = 24
+    static let sectionSpacing: CGFloat = 28
     
     static var backgroundGradient: LinearGradient {
         LinearGradient(
             colors: [deepBackground, surfaceBackground],
             startPoint: .top,
             endPoint: .bottom
+        )
+    }
+    
+    static var cardGradient: LinearGradient {
+        LinearGradient(
+            colors: [cardStart, cardEnd],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
         )
     }
     
@@ -31,7 +48,36 @@ enum DDTheme {
     }
 }
 
-// MARK: - Liquid Glass Modifiers
+// MARK: - Hex Color Extension
+
+extension Color {
+    init(hex: String) {
+        let hex = hex.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
+        let scanner = Scanner(string: hex)
+        var rgbValue: UInt64 = 0
+        scanner.scanHexInt64(&rgbValue)
+        let r = Double((rgbValue & 0xFF0000) >> 16) / 255.0
+        let g = Double((rgbValue & 0x00FF00) >> 8) / 255.0
+        let b = Double(rgbValue & 0x0000FF) / 255.0
+        self.init(red: r, green: g, blue: b)
+    }
+}
+
+// MARK: - Card Modifiers
+
+struct DashboardCardModifier: ViewModifier {
+    var cornerRadius: CGFloat = DDTheme.cardCornerRadius
+    
+    func body(content: Content) -> some View {
+        content
+            .background(DDTheme.cardGradient)
+            .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+            .overlay(
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .stroke(DDTheme.cardBorder, lineWidth: 1)
+            )
+    }
+}
 
 struct LiquidGlassModifier: ViewModifier {
     var cornerRadius: CGFloat = DDTheme.cardCornerRadius
@@ -42,12 +88,7 @@ struct LiquidGlassModifier: ViewModifier {
                 .glassEffect(.regular, in: .rect(cornerRadius: cornerRadius))
         } else {
             content
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: cornerRadius))
-                .overlay(
-                    RoundedRectangle(cornerRadius: cornerRadius)
-                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
-                )
-                .shadow(color: .black.opacity(0.25), radius: 10, x: 0, y: 4)
+                .modifier(DashboardCardModifier(cornerRadius: cornerRadius))
         }
     }
 }
@@ -59,8 +100,8 @@ struct LiquidGlassPillModifier: ViewModifier {
                 .glassEffect(.regular, in: .capsule)
         } else {
             content
-                .background(.ultraThinMaterial, in: Capsule())
-                .overlay(Capsule().stroke(Color.white.opacity(0.08), lineWidth: 1))
+                .background(DDTheme.cardGradient, in: Capsule())
+                .overlay(Capsule().stroke(DDTheme.cardBorder, lineWidth: 1))
         }
     }
 }
@@ -72,15 +113,15 @@ struct LiquidGlassCircleModifier: ViewModifier {
                 .glassEffect(.regular, in: .circle)
         } else {
             content
-                .background(.ultraThinMaterial, in: Circle())
-                .overlay(Circle().stroke(Color.white.opacity(0.08), lineWidth: 1))
+                .background(DDTheme.cardGradient, in: Circle())
+                .overlay(Circle().stroke(DDTheme.cardBorder, lineWidth: 1))
         }
     }
 }
 
 struct CardStyle: ViewModifier {
     func body(content: Content) -> some View {
-        content.modifier(LiquidGlassModifier(cornerRadius: DDTheme.cardCornerRadius))
+        content.modifier(DashboardCardModifier())
     }
 }
 
@@ -93,6 +134,10 @@ struct GlassCardStyle: ViewModifier {
 extension View {
     func cardStyle() -> some View {
         modifier(CardStyle())
+    }
+    
+    func dashboardCard(cornerRadius: CGFloat = DDTheme.cardCornerRadius) -> some View {
+        modifier(DashboardCardModifier(cornerRadius: cornerRadius))
     }
     
     func glassCard() -> some View {
@@ -109,6 +154,36 @@ extension View {
     
     func liquidGlassCircle() -> some View {
         modifier(LiquidGlassCircleModifier())
+    }
+}
+
+// MARK: - Section Header
+
+struct SectionHeaderView: View {
+    let title: String
+    let icon: String
+    
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: icon)
+                .foregroundStyle(DDTheme.teal)
+                .font(.title3)
+            Text(title)
+                .font(.system(.title3, design: .rounded, weight: .semibold))
+            Spacer()
+        }
+    }
+}
+
+struct SectionLabel: View {
+    let title: String
+    
+    var body: some View {
+        Text(title)
+            .font(.system(.caption, design: .rounded, weight: .semibold))
+            .foregroundStyle(.secondary.opacity(0.6))
+            .tracking(1.5)
+            .textCase(.uppercase)
     }
 }
 
@@ -136,24 +211,6 @@ struct EmptyStateView: View {
                 .buttonStyle(.borderedProminent)
                 .tint(DDTheme.teal)
             }
-        }
-    }
-}
-
-// MARK: - Section Header
-
-struct SectionHeaderView: View {
-    let title: String
-    let icon: String
-    
-    var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: icon)
-                .foregroundStyle(DDTheme.teal)
-                .font(.title3)
-            Text(title)
-                .font(.system(.title3, design: .rounded, weight: .semibold))
-            Spacer()
         }
     }
 }

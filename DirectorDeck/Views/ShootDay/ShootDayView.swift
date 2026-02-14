@@ -30,7 +30,7 @@ struct ShootDayView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Progress header with liquid glass
+            // Progress header card
             VStack(spacing: 20) {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 6) {
@@ -44,10 +44,10 @@ struct ShootDayView: View {
                     
                     Spacer()
                     
-                    // Progress ring in glass container
+                    // Progress ring
                     ZStack {
                         Circle()
-                            .stroke(Color.white.opacity(0.08), lineWidth: 8)
+                            .stroke(Color.white.opacity(0.06), lineWidth: 8)
                         Circle()
                             .trim(from: 0, to: progress)
                             .stroke(
@@ -65,11 +65,9 @@ struct ShootDayView: View {
                         }
                     }
                     .frame(width: 90, height: 90)
-                    .padding(8)
-                    .liquidGlassCircle()
                 }
                 
-                // Filter pills with liquid glass
+                // Filter pills
                 HStack(spacing: 10) {
                     ForEach(ShootDayFilter.allCases, id: \.self) { f in
                         Button {
@@ -77,15 +75,17 @@ struct ShootDayView: View {
                         } label: {
                             Text(f.rawValue)
                                 .font(.system(.subheadline, design: .rounded, weight: .medium))
-                                .padding(.horizontal, 18)
-                                .padding(.vertical, 9)
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 10)
                                 .foregroundStyle(filter == f ? .white : .secondary)
                                 .background {
                                     if filter == f {
                                         Capsule().fill(DDTheme.tealGradient)
+                                    } else {
+                                        Capsule().fill(Color.white.opacity(0.04))
+                                            .overlay(Capsule().stroke(DDTheme.cardBorder, lineWidth: 1))
                                     }
                                 }
-                                .liquidGlassPill()
                         }
                         .buttonStyle(.plain)
                     }
@@ -93,6 +93,7 @@ struct ShootDayView: View {
                 }
             }
             .padding(DDTheme.largePadding)
+            .dashboardCard(cornerRadius: 0)
             
             // Shot list
             if filteredShots.isEmpty {
@@ -122,7 +123,7 @@ struct ShootDayView: View {
                 Spacer()
             } else {
                 ScrollView {
-                    LazyVStack(spacing: 12) {
+                    LazyVStack(spacing: 14) {
                         ForEach(filteredShots) { shot in
                             ShootDayShotCard(shot: shot)
                         }
@@ -131,6 +132,7 @@ struct ShootDayView: View {
                 }
             }
         }
+        .background(DDTheme.deepBackground)
         .navigationTitle("Shoot Day")
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -142,7 +144,7 @@ struct ShootDayShotCard: View {
     
     var body: some View {
         HStack(spacing: 16) {
-            // Circular checkbox with liquid glass
+            // Checkbox
             Button {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                     shot.isCompleted.toggle()
@@ -154,15 +156,17 @@ struct ShootDayShotCard: View {
             } label: {
                 ZStack {
                     Circle()
-                        .fill(shot.isCompleted ? Color.green.opacity(0.15) : Color.clear)
+                        .fill(shot.isCompleted ? DDTheme.green.opacity(0.15) : Color.white.opacity(0.04))
                         .frame(width: 52, height: 52)
+                        .overlay(
+                            Circle().stroke(shot.isCompleted ? DDTheme.green.opacity(0.3) : DDTheme.cardBorder, lineWidth: 1)
+                        )
                     Image(systemName: shot.isCompleted ? "checkmark" : "")
                         .font(.system(size: 22, weight: .bold))
-                        .foregroundStyle(.green)
+                        .foregroundStyle(DDTheme.green)
                         .scaleEffect(justToggled ? 1.3 : 1.0)
                         .animation(.spring(response: 0.25, dampingFraction: 0.5), value: justToggled)
                 }
-                .liquidGlassCircle()
             }
             .buttonStyle(.plain)
             
@@ -176,23 +180,22 @@ struct ShootDayShotCard: View {
             }
             
             // Shot info
-            VStack(alignment: .leading, spacing: 5) {
-                HStack(spacing: 8) {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 10) {
                     if !shot.shotNumber.isEmpty {
                         Text(shot.shotNumber)
-                            .font(.system(.caption2, design: .rounded, weight: .bold))
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 3)
-                            .background(DDTheme.teal.opacity(0.15), in: Capsule())
+                            .font(.system(.caption, design: .rounded, weight: .bold))
                             .foregroundStyle(DDTheme.teal)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 4)
+                            .background(DDTheme.teal.opacity(0.12), in: Capsule())
                     }
                     Text(shot.title)
                         .font(.system(.headline, design: .rounded))
-                        .strikethrough(shot.isCompleted, color: .secondary.opacity(0.5))
                         .foregroundStyle(shot.isCompleted ? .secondary : .primary)
                 }
                 
-                HStack(spacing: 10) {
+                HStack(spacing: 14) {
                     Label(shot.shotType.rawValue, systemImage: "camera.fill")
                     if !shot.lens.isEmpty {
                         Label(shot.lens, systemImage: "circle.circle")
@@ -202,21 +205,21 @@ struct ShootDayShotCard: View {
                     }
                 }
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.secondary.opacity(0.7))
                 
                 if !shot.shotDescription.isEmpty {
                     Text(shot.shotDescription)
                         .font(.caption)
-                        .foregroundStyle(.secondary.opacity(0.7))
+                        .foregroundStyle(.secondary.opacity(0.5))
                         .lineLimit(2)
                 }
             }
             
             Spacer()
         }
-        .padding(14)
-        .liquidGlass(cornerRadius: 20)
-        .opacity(shot.isCompleted ? 0.7 : 1)
+        .padding(16)
+        .dashboardCard(cornerRadius: 20)
+        .opacity(shot.isCompleted ? 0.6 : 1)
         .animation(.spring(response: 0.3, dampingFraction: 0.8), value: shot.isCompleted)
     }
 }

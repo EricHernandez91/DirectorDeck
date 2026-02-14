@@ -76,21 +76,28 @@ struct ShotListRow: View {
     @Bindable var shot: ShotListItem
     
     var body: some View {
-        HStack(spacing: 14) {
+        HStack(spacing: 16) {
+            // Shot number badge - prominent colored circle
+            if !shot.shotNumber.isEmpty {
+                ZStack {
+                    Circle()
+                        .fill(DDTheme.teal.opacity(0.15))
+                        .frame(width: 44, height: 44)
+                    Text(shot.shotNumber)
+                        .font(.system(.caption, design: .rounded, weight: .bold))
+                        .foregroundStyle(DDTheme.teal)
+                }
+            }
+            
             // Completion toggle
             Button {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                     shot.isCompleted.toggle()
                 }
             } label: {
-                ZStack {
-                    Circle()
-                        .fill(shot.isCompleted ? Color.green.opacity(0.15) : Color.clear)
-                        .frame(width: 32, height: 32)
-                    Image(systemName: shot.isCompleted ? "checkmark.circle.fill" : "circle")
-                        .font(.title3)
-                        .foregroundStyle(shot.isCompleted ? Color.green : Color.secondary)
-                }
+                Image(systemName: shot.isCompleted ? "checkmark.circle.fill" : "circle")
+                    .font(.title3)
+                    .foregroundStyle(shot.isCompleted ? DDTheme.green : Color.secondary.opacity(0.4))
             }
             .buttonStyle(.plain)
             
@@ -99,59 +106,35 @@ struct ShotListRow: View {
                 Image(uiImage: uiImage)
                     .resizable()
                     .scaledToFill()
-                    .frame(width: 60, height: 40)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .frame(width: 64, height: 42)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
             }
             
             // Info
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 8) {
-                    if !shot.shotNumber.isEmpty {
-                        Text(shot.shotNumber)
-                            .font(.system(.caption2, design: .rounded, weight: .bold))
-                            .padding(.horizontal, 7)
-                            .padding(.vertical, 3)
-                            .background(DDTheme.teal.opacity(0.15), in: Capsule())
-                            .foregroundStyle(DDTheme.teal)
-                    }
-                    Text(shot.title)
-                        .font(.system(.body, design: .rounded, weight: .medium))
-                        .strikethrough(shot.isCompleted, color: .secondary.opacity(0.5))
-                        .foregroundStyle(shot.isCompleted ? .secondary : .primary)
-                }
+            VStack(alignment: .leading, spacing: 6) {
+                Text(shot.title)
+                    .font(.system(.body, design: .rounded, weight: .semibold))
+                    .foregroundStyle(shot.isCompleted ? .secondary : .primary)
                 
-                HStack(spacing: 10) {
+                HStack(spacing: 14) {
                     Label(shot.shotType.rawValue, systemImage: "camera.fill")
                     if !shot.lens.isEmpty {
                         Label(shot.lens, systemImage: "circle.circle")
                     }
+                    if !shot.scene.isEmpty {
+                        Label(shot.scene, systemImage: "film")
+                    }
                 }
                 .font(.caption)
-                .foregroundStyle(.secondary)
-                
-                if !shot.shotDescription.isEmpty {
-                    Text(shot.shotDescription)
-                        .font(.caption)
-                        .foregroundStyle(.secondary.opacity(0.7))
-                        .lineLimit(1)
-                }
+                .foregroundStyle(.secondary.opacity(0.7))
             }
             
             Spacer()
-            
-            if !shot.scene.isEmpty {
-                Text(shot.scene)
-                    .font(.system(.caption2, design: .rounded, weight: .medium))
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 5)
-                    .liquidGlassPill()
-            }
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
-        .liquidGlass(cornerRadius: 16)
-        .opacity(shot.isCompleted ? 0.65 : 1)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
+        .dashboardCard()
+        .opacity(shot.isCompleted ? 0.55 : 1)
         .animation(.spring(response: 0.3, dampingFraction: 0.8), value: shot.isCompleted)
     }
 }
