@@ -9,6 +9,10 @@ struct ContentView: View {
     @State private var showNewProject = false
     @State private var columnVisibility = NavigationSplitViewVisibility.all
     
+    private var isScreenshotTour: Bool {
+        CommandLine.arguments.contains("--screenshot-tour")
+    }
+    
     var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
             SidebarView(
@@ -45,11 +49,34 @@ struct ContentView: View {
         }
         .tint(DDTheme.teal)
         .preferredColorScheme(.dark)
+        .onAppear {
+            SampleDataService.loadIfNeeded(context: modelContext)
+            if isScreenshotTour {
+                runScreenshotTour()
+            }
+        }
         .sheet(isPresented: $showNewProject) {
             NewProjectSheet { name, description in
                 let project = Project(name: name, projectDescription: description)
                 modelContext.insert(project)
                 selectedProject = project
+            }
+        }
+    }
+    
+    private func runScreenshotTour() {
+        let sections: [SidebarSection] = [.briefs, .interviews, .storyboards, .shotList, .shootDay, .documents]
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            if let project = projects.first {
+                selectedProject = project
+            }
+        }
+        
+        for (i, section) in sections.enumerated() {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0 + Double(i) * 2.5) {
+                selectedSection = section
+                print("SCREENSHOT_READY:\(i)")
             }
         }
     }
