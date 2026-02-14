@@ -88,6 +88,7 @@ struct ShotListRow: View {
                         .font(.system(size: 12, weight: .bold))
                         .foregroundStyle(.white)
                 }
+                .shadow(color: DDTheme.teal.opacity(0.3), radius: 8, y: 2)
             }
             
             // Info

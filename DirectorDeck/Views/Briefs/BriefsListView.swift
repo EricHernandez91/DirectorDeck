@@ -126,7 +126,17 @@ struct BriefEditorView: View {
             .padding(DDTheme.largePadding)
             .background(DDTheme.cardGradient)
             .clipShape(RoundedRectangle(cornerRadius: 12))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.white.opacity(0.06), lineWidth: 0.5))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(
+                        LinearGradient(
+                            colors: [DDTheme.violet.opacity(0.2), DDTheme.teal.opacity(0.1), DDTheme.violet.opacity(0.05)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1
+                    )
+            )
             .shadow(color: .black.opacity(0.2), radius: 8, y: 2)
             .padding()
         }

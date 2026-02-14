@@ -9,13 +9,17 @@ enum DDTheme {
     static let success = Color(hex: "#4CAF50")
     static let mutedBlueGray = Color(hex: "#7B8FA1")
     
+    // Purple/violet secondary accent
+    static let violet = Color(hex: "#8B5CF6")
+    static let violetGlow = Color(hex: "#7C3AED")
+    
     // Dark navy palette (not pure black)
-    static let deepBackground = Color(hex: "#0C0C14")
-    static let surfaceBackground = Color(hex: "#111118")
-    static let cardStart = Color(hex: "#151520")
-    static let cardEnd = Color(hex: "#1C1C28")
-    static let cardBorder = Color.white.opacity(0.06)
-    static let pillBackground = Color(hex: "#1A1A25")
+    static let deepBackground = Color(hex: "#08091A")
+    static let surfaceBackground = Color(hex: "#0D0E1E")
+    static let cardStart = Color(hex: "#12132A")
+    static let cardEnd = Color(hex: "#1A1B35")
+    static let cardBorder = Color(hex: "#8B5CF6").opacity(0.08)
+    static let pillBackground = Color(hex: "#16172A")
     
     // Accent colors
     static let green = Color(hex: "#4CAF50")
@@ -28,10 +32,14 @@ enum DDTheme {
     
     static var backgroundGradient: LinearGradient {
         LinearGradient(
-            colors: [deepBackground, surfaceBackground],
+            colors: [deepBackground, surfaceBackground, deepBackground],
             startPoint: .top,
             endPoint: .bottom
         )
+    }
+    
+    static var ambientGlow: RadialGradient {
+        RadialGradient(colors: [violet.opacity(0.03), .clear], center: .top, startRadius: 0, endRadius: 400)
     }
     
     static var cardGradient: LinearGradient {
@@ -79,7 +87,29 @@ struct DashboardCardModifier: ViewModifier {
                 RoundedRectangle(cornerRadius: cornerRadius)
                     .stroke(Color.white.opacity(0.06), lineWidth: 0.5)
             )
+            .shadow(color: Color(hex: "#8B5CF6").opacity(0.08), radius: 20, y: 4)
             .shadow(color: .black.opacity(0.2), radius: 8, y: 2)
+    }
+}
+
+struct GlowingCardModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .background(DDTheme.cardGradient)
+            .clipShape(RoundedRectangle(cornerRadius: DDTheme.cardCornerRadius))
+            .overlay(
+                RoundedRectangle(cornerRadius: DDTheme.cardCornerRadius)
+                    .stroke(
+                        LinearGradient(
+                            colors: [DDTheme.violet.opacity(0.2), DDTheme.teal.opacity(0.1), DDTheme.violet.opacity(0.05)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1
+                    )
+            )
+            .shadow(color: DDTheme.violet.opacity(0.1), radius: 24, y: 4)
+            .shadow(color: .black.opacity(0.3), radius: 12, y: 4)
     }
 }
 
@@ -159,6 +189,10 @@ extension View {
     func liquidGlassCircle() -> some View {
         modifier(LiquidGlassCircleModifier())
     }
+    
+    func glowingCard() -> some View {
+        modifier(GlowingCardModifier())
+    }
 }
 
 // MARK: - Pill View
@@ -175,6 +209,7 @@ struct PillView: View {
             .padding(.horizontal, 6)
             .padding(.vertical, 3)
             .background(background, in: RoundedRectangle(cornerRadius: 6))
+            .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.white.opacity(0.04), lineWidth: 0.5))
     }
 }
 

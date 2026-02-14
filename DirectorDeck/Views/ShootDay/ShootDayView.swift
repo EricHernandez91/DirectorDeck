@@ -47,7 +47,7 @@ struct ShootDayView: View {
                     // Progress ring - 80pt, 6pt stroke
                     ZStack {
                         Circle()
-                            .stroke(Color.white.opacity(0.06), lineWidth: 6)
+                            .stroke(DDTheme.violet.opacity(0.1), lineWidth: 6)
                         Circle()
                             .trim(from: 0, to: progress)
                             .stroke(
@@ -89,7 +89,12 @@ struct ShootDayView: View {
                 }
             }
             .padding(DDTheme.largePadding)
-            .dashboardCard(cornerRadius: 0)
+            .background(
+                ZStack {
+                    DDTheme.cardGradient
+                    RadialGradient(colors: [DDTheme.violet.opacity(0.06), .clear], center: .topTrailing, startRadius: 0, endRadius: 300)
+                }
+            )
             
             // Shot list
             if filteredShots.isEmpty {

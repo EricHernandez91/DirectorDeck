@@ -22,6 +22,7 @@ struct SidebarView: View {
                                         .font(.system(size: 16, weight: .bold))
                                         .foregroundStyle(.white)
                                 }
+                                .overlay(Circle().stroke(DDTheme.violet.opacity(0.15), lineWidth: 1))
                                 .shadow(color: DDTheme.teal.opacity(0.3), radius: 6, y: 2)
                             
                             VStack(alignment: .leading, spacing: 3) {

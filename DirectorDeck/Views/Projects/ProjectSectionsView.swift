@@ -35,7 +35,12 @@ struct ProjectSectionsView: View {
             .padding(.horizontal, DDTheme.largePadding)
             .padding(.vertical, DDTheme.largePadding)
         }
-        .background(DDTheme.deepBackground)
+        .background(
+            ZStack {
+                DDTheme.deepBackground
+                DDTheme.ambientGlow
+            }
+        )
         .navigationTitle(project.name)
         .navigationSplitViewColumnWidth(min: 240, ideal: 280, max: 320)
         .toolbar {
@@ -98,7 +103,7 @@ struct ProjectSectionsView: View {
             .padding(.vertical, 14)
             .background(
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(isSelected ? DDTheme.teal.opacity(0.1) : Color.clear)
+                    .fill(isSelected ? AnyShapeStyle(LinearGradient(colors: [DDTheme.teal.opacity(0.08), DDTheme.violet.opacity(0.05)], startPoint: .leading, endPoint: .trailing)) : AnyShapeStyle(Color.clear))
             )
         }
         .buttonStyle(.plain)
