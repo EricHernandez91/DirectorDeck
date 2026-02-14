@@ -31,17 +31,16 @@ struct ShotListView: View {
                     actionLabel: "Add Shot"
                 )
             } else {
-                List {
-                    ForEach(shots) { shot in
-                        ShotListRow(shot: shot)
-                            .onTapGesture { selectedShot = shot }
-                            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
-                            .listRowSeparatorTint(Color.white.opacity(0.06))
+                ScrollView {
+                    LazyVStack(spacing: 8) {
+                        ForEach(shots) { shot in
+                            ShotListRow(shot: shot)
+                                .onTapGesture { selectedShot = shot }
+                        }
                     }
-                    .onMove(perform: moveShots)
-                    .onDelete(perform: deleteShots)
+                    .padding(.horizontal, DDTheme.standardPadding)
+                    .padding(.vertical, 8)
                 }
-                .listStyle(.plain)
                 .searchable(text: $searchText, prompt: "Search shots")
             }
         }
@@ -69,18 +68,6 @@ struct ShotListView: View {
         }
         .sheet(item: $selectedShot) { shot in
             ShotEditSheet(project: project, existingShot: shot)
-        }
-    }
-    
-    private func moveShots(from source: IndexSet, to destination: Int) {
-        var sorted = shots
-        sorted.move(fromOffsets: source, toOffset: destination)
-        for (i, s) in sorted.enumerated() { s.orderIndex = i }
-    }
-    
-    private func deleteShots(at offsets: IndexSet) {
-        for index in offsets {
-            modelContext.delete(shots[index])
         }
     }
 }
@@ -158,10 +145,12 @@ struct ShotListRow: View {
                     .foregroundStyle(.secondary)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 5)
-                    .background(Color(.tertiarySystemFill), in: Capsule())
+                    .liquidGlassPill()
             }
         }
-        .padding(.vertical, 4)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .liquidGlass(cornerRadius: 16)
         .opacity(shot.isCompleted ? 0.65 : 1)
         .animation(.spring(response: 0.3, dampingFraction: 0.8), value: shot.isCompleted)
     }

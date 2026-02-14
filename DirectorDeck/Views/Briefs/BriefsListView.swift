@@ -107,12 +107,11 @@ struct BriefEditorView: View {
                 Spacer()
                 Text("Last edited \(brief.updatedAt, style: .relative) ago")
                     .font(.caption)
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(.secondary.opacity(0.7))
             }
             .padding()
             
             Divider()
-                .overlay(Color.white.opacity(0.04))
             
             TextEditor(text: $brief.content)
                 .font(.system(.body, design: .default))

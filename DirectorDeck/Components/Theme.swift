@@ -9,8 +9,8 @@ enum DDTheme {
     static let deepBackground = Color(red: 0.039, green: 0.039, blue: 0.059)
     static let surfaceBackground = Color(red: 0.067, green: 0.067, blue: 0.094)
     
-    static let cardCornerRadius: CGFloat = 16
-    static let smallCornerRadius: CGFloat = 10
+    static let cardCornerRadius: CGFloat = 20
+    static let smallCornerRadius: CGFloat = 12
     static let standardPadding: CGFloat = 16
     static let largePadding: CGFloat = 24
     
@@ -31,27 +31,62 @@ enum DDTheme {
     }
 }
 
+// MARK: - Liquid Glass Modifiers
+
+struct LiquidGlassModifier: ViewModifier {
+    var cornerRadius: CGFloat = DDTheme.cardCornerRadius
+    
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content
+                .glassEffect(.regular, in: .rect(cornerRadius: cornerRadius))
+        } else {
+            content
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: cornerRadius))
+                .overlay(
+                    RoundedRectangle(cornerRadius: cornerRadius)
+                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.25), radius: 10, x: 0, y: 4)
+        }
+    }
+}
+
+struct LiquidGlassPillModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content
+                .glassEffect(.regular, in: .capsule)
+        } else {
+            content
+                .background(.ultraThinMaterial, in: Capsule())
+                .overlay(Capsule().stroke(Color.white.opacity(0.08), lineWidth: 1))
+        }
+    }
+}
+
+struct LiquidGlassCircleModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content
+                .glassEffect(.regular, in: .circle)
+        } else {
+            content
+                .background(.ultraThinMaterial, in: Circle())
+                .overlay(Circle().stroke(Color.white.opacity(0.08), lineWidth: 1))
+        }
+    }
+}
+
 struct CardStyle: ViewModifier {
     func body(content: Content) -> some View {
-        content
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DDTheme.cardCornerRadius))
-            .overlay(
-                RoundedRectangle(cornerRadius: DDTheme.cardCornerRadius)
-                    .stroke(Color.white.opacity(0.06), lineWidth: 1)
-            )
-            .shadow(color: .black.opacity(0.3), radius: 12, x: 0, y: 4)
+        content.modifier(LiquidGlassModifier(cornerRadius: DDTheme.cardCornerRadius))
     }
 }
 
 struct GlassCardStyle: ViewModifier {
     func body(content: Content) -> some View {
-        content
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DDTheme.cardCornerRadius))
-            .overlay(
-                RoundedRectangle(cornerRadius: DDTheme.cardCornerRadius)
-                    .stroke(Color.white.opacity(0.08), lineWidth: 1)
-            )
-            .shadow(color: .black.opacity(0.25), radius: 10, x: 0, y: 4)
+        content.modifier(LiquidGlassModifier(cornerRadius: DDTheme.cardCornerRadius))
     }
 }
 
@@ -64,14 +99,20 @@ extension View {
         modifier(GlassCardStyle())
     }
     
-    func sectionHeader() -> some View {
-        self
-            .font(.caption.weight(.semibold))
-            .foregroundStyle(.secondary)
-            .textCase(.uppercase)
-            .tracking(1.2)
+    func liquidGlass(cornerRadius: CGFloat = DDTheme.cardCornerRadius) -> some View {
+        modifier(LiquidGlassModifier(cornerRadius: cornerRadius))
+    }
+    
+    func liquidGlassPill() -> some View {
+        modifier(LiquidGlassPillModifier())
+    }
+    
+    func liquidGlassCircle() -> some View {
+        modifier(LiquidGlassCircleModifier())
     }
 }
+
+// MARK: - Empty State
 
 struct EmptyStateView: View {
     let icon: String
@@ -98,6 +139,8 @@ struct EmptyStateView: View {
         }
     }
 }
+
+// MARK: - Section Header
 
 struct SectionHeaderView: View {
     let title: String

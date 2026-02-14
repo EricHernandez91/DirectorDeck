@@ -115,7 +115,7 @@ struct InterviewQuestionsView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Header
+            // Header with glass effect
             VStack(alignment: .leading, spacing: 8) {
                 Text(subject.name)
                     .font(.system(.title2, design: .rounded, weight: .bold))
@@ -138,7 +138,7 @@ struct InterviewQuestionsView: View {
             }
             .padding()
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.ultraThinMaterial)
+            .liquidGlass(cornerRadius: 0)
             
             // Questions list
             List {
@@ -226,7 +226,7 @@ struct QuestionRow: View {
                 if !question.notes.isEmpty {
                     Text(question.notes)
                         .font(.caption)
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(.secondary.opacity(0.7))
                 }
             }
             
@@ -234,7 +234,7 @@ struct QuestionRow: View {
             
             Button(action: onEdit) {
                 Image(systemName: "pencil.circle")
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(.secondary.opacity(0.7))
             }
             .buttonStyle(.plain)
         }

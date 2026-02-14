@@ -91,23 +91,23 @@ struct StoryboardCardView: View {
                     }
                 }
                 
-                // Order badge
+                // Order badge — liquid glass pill
                 VStack {
                     HStack {
                         Text("#\(card.orderIndex + 1)")
                             .font(.system(.caption2, design: .rounded, weight: .bold))
                             .foregroundStyle(.white)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(.ultraThinMaterial, in: Capsule())
-                            .overlay(Capsule().stroke(Color.white.opacity(0.15), lineWidth: 0.5))
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
+                            .liquidGlassPill()
+
                         Spacer()
                     }
                     Spacer()
                 }
                 .padding(10)
             }
-            .clipShape(UnevenRoundedRectangle(topLeadingRadius: 16, topTrailingRadius: 16))
+            .clipShape(UnevenRoundedRectangle(topLeadingRadius: 20, topTrailingRadius: 20))
             
             // Info area
             VStack(alignment: .leading, spacing: 6) {
@@ -137,7 +137,7 @@ struct StoryboardCardView: View {
             }
             .padding(14)
         }
-        .glassCard()
+        .liquidGlass(cornerRadius: 20)
         .scaleEffect(isPressed ? 0.97 : 1)
         .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isPressed)
         .onLongPressGesture(minimumDuration: .infinity, pressing: { pressing in
@@ -260,18 +260,17 @@ struct StoryboardCardDetailSheet: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
-                    // Image
                     ZStack {
                         Rectangle()
                             .fill(Color(.tertiarySystemBackground))
                             .aspectRatio(16/9, contentMode: .fit)
-                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                            .clipShape(RoundedRectangle(cornerRadius: 20))
                         
                         if let data = card.imageData, let uiImage = UIImage(data: data) {
                             Image(uiImage: uiImage)
                                 .resizable()
                                 .scaledToFit()
-                                .clipShape(RoundedRectangle(cornerRadius: 16))
+                                .clipShape(RoundedRectangle(cornerRadius: 20))
                         } else {
                             Button(action: { showImagePicker = true }) {
                                 VStack(spacing: 8) {

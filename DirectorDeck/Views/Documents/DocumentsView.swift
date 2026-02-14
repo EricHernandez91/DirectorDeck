@@ -29,15 +29,16 @@ struct DocumentsView: View {
                     actionLabel: "Import"
                 )
             } else {
-                List {
-                    ForEach(documents) { doc in
-                        DocumentRow(document: doc)
-                            .onTapGesture { selectedDocument = doc }
-                            .listRowSeparatorTint(Color.white.opacity(0.06))
+                ScrollView {
+                    LazyVStack(spacing: 8) {
+                        ForEach(documents) { doc in
+                            DocumentRow(document: doc)
+                                .onTapGesture { selectedDocument = doc }
+                        }
                     }
-                    .onDelete(perform: deleteDocuments)
+                    .padding(.horizontal, DDTheme.standardPadding)
+                    .padding(.vertical, 8)
                 }
-                .listStyle(.plain)
             }
         }
         .navigationTitle(folder?.name ?? "Documents")
@@ -82,12 +83,6 @@ struct DocumentsView: View {
             modelContext.insert(doc)
         }
     }
-    
-    private func deleteDocuments(at offsets: IndexSet) {
-        for index in offsets {
-            modelContext.delete(documents[index])
-        }
-    }
 }
 
 struct DocumentRow: View {
@@ -99,10 +94,6 @@ struct DocumentRow: View {
                 RoundedRectangle(cornerRadius: 12)
                     .fill(iconColor.opacity(0.12))
                     .frame(width: 48, height: 48)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(iconColor.opacity(0.2), lineWidth: 0.5)
-                    )
                 Image(systemName: iconName)
                     .font(.title3)
                     .foregroundStyle(iconColor)
@@ -121,7 +112,7 @@ struct DocumentRow: View {
                         .background(iconColor.opacity(0.1), in: Capsule())
                     Text(document.createdAt, style: .date)
                         .font(.caption2)
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(.secondary.opacity(0.7))
                 }
             }
             
@@ -129,9 +120,11 @@ struct DocumentRow: View {
             
             Image(systemName: "chevron.right")
                 .font(.caption2)
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(.secondary.opacity(0.5))
         }
-        .padding(.vertical, 6)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .liquidGlass(cornerRadius: 16)
     }
     
     var iconName: String {

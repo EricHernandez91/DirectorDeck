@@ -11,7 +11,7 @@ struct ProjectSectionsView: View {
         List(selection: $selectedSection) {
             // Project header card
             Section {
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 10) {
                     HStack(spacing: 12) {
                         Circle()
                             .fill(DDTheme.tealGradient)
@@ -35,14 +35,14 @@ struct ProjectSectionsView: View {
                         }
                     }
                     
-                    // Stats row
-                    HStack(spacing: 16) {
-                        statBadge(count: project.briefs.count, label: "Briefs")
-                        statBadge(count: project.storyboardCards.count, label: "Boards")
-                        statBadge(count: project.shotListItems.count, label: "Shots")
-                        statBadge(count: project.documents.count, label: "Docs")
+                    // Stats row with glass pills
+                    HStack(spacing: 12) {
+                        statPill(count: project.briefs.count, label: "Briefs")
+                        statPill(count: project.storyboardCards.count, label: "Boards")
+                        statPill(count: project.shotListItems.count, label: "Shots")
+                        statPill(count: project.documents.count, label: "Docs")
                     }
-                    .padding(.top, 4)
+                    .padding(.top, 2)
                 }
                 .padding(.vertical, 6)
             }
@@ -103,7 +103,7 @@ struct ProjectSectionsView: View {
         }
     }
     
-    private func statBadge(count: Int, label: String) -> some View {
+    private func statPill(count: Int, label: String) -> some View {
         VStack(spacing: 2) {
             Text("\(count)")
                 .font(.system(.subheadline, design: .rounded, weight: .bold))
@@ -112,6 +112,9 @@ struct ProjectSectionsView: View {
                 .font(.caption2)
                 .foregroundStyle(.secondary)
         }
+        .frame(minWidth: 48)
+        .padding(.vertical, 6)
+        .padding(.horizontal, 4)
     }
     
     private func sectionRow(_ section: SidebarSection, icon: String, label: String, count: Int?) -> some View {

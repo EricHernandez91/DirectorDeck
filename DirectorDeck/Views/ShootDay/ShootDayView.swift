@@ -30,7 +30,7 @@ struct ShootDayView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Progress header
+            // Progress header with liquid glass
             VStack(spacing: 20) {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 6) {
@@ -44,7 +44,7 @@ struct ShootDayView: View {
                     
                     Spacer()
                     
-                    // Circular progress
+                    // Progress ring in glass container
                     ZStack {
                         Circle()
                             .stroke(Color.white.opacity(0.08), lineWidth: 8)
@@ -65,10 +65,11 @@ struct ShootDayView: View {
                         }
                     }
                     .frame(width: 90, height: 90)
-                    .shadow(color: DDTheme.teal.opacity(0.2), radius: 12)
+                    .padding(8)
+                    .liquidGlassCircle()
                 }
                 
-                // Filter pills
+                // Filter pills with liquid glass
                 HStack(spacing: 10) {
                     ForEach(ShootDayFilter.allCases, id: \.self) { f in
                         Button {
@@ -78,13 +79,13 @@ struct ShootDayView: View {
                                 .font(.system(.subheadline, design: .rounded, weight: .medium))
                                 .padding(.horizontal, 18)
                                 .padding(.vertical, 9)
-                                .background(
-                                    filter == f
-                                        ? AnyShapeStyle(DDTheme.tealGradient)
-                                        : AnyShapeStyle(Color.white.opacity(0.06)),
-                                    in: Capsule()
-                                )
                                 .foregroundStyle(filter == f ? .white : .secondary)
+                                .background {
+                                    if filter == f {
+                                        Capsule().fill(DDTheme.tealGradient)
+                                    }
+                                }
+                                .liquidGlassPill()
                         }
                         .buttonStyle(.plain)
                     }
@@ -92,7 +93,6 @@ struct ShootDayView: View {
                 }
             }
             .padding(DDTheme.largePadding)
-            .background(.ultraThinMaterial)
             
             // Shot list
             if filteredShots.isEmpty {
@@ -142,7 +142,7 @@ struct ShootDayShotCard: View {
     
     var body: some View {
         HStack(spacing: 16) {
-            // Large tap target for checking off
+            // Circular checkbox with liquid glass
             Button {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                     shot.isCompleted.toggle()
@@ -154,18 +154,15 @@ struct ShootDayShotCard: View {
             } label: {
                 ZStack {
                     Circle()
-                        .fill(shot.isCompleted ? Color.green.opacity(0.15) : Color.white.opacity(0.05))
+                        .fill(shot.isCompleted ? Color.green.opacity(0.15) : Color.clear)
                         .frame(width: 52, height: 52)
-                        .overlay(
-                            Circle()
-                                .stroke(shot.isCompleted ? Color.green.opacity(0.3) : Color.white.opacity(0.1), lineWidth: 1.5)
-                        )
                     Image(systemName: shot.isCompleted ? "checkmark" : "")
                         .font(.system(size: 22, weight: .bold))
                         .foregroundStyle(.green)
                         .scaleEffect(justToggled ? 1.3 : 1.0)
                         .animation(.spring(response: 0.25, dampingFraction: 0.5), value: justToggled)
                 }
+                .liquidGlassCircle()
             }
             .buttonStyle(.plain)
             
@@ -175,7 +172,7 @@ struct ShootDayShotCard: View {
                     .resizable()
                     .scaledToFill()
                     .frame(width: 80, height: 56)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             
             // Shot info
@@ -210,7 +207,7 @@ struct ShootDayShotCard: View {
                 if !shot.shotDescription.isEmpty {
                     Text(shot.shotDescription)
                         .font(.caption)
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(.secondary.opacity(0.7))
                         .lineLimit(2)
                 }
             }
@@ -218,7 +215,7 @@ struct ShootDayShotCard: View {
             Spacer()
         }
         .padding(14)
-        .glassCard()
+        .liquidGlass(cornerRadius: 20)
         .opacity(shot.isCompleted ? 0.7 : 1)
         .animation(.spring(response: 0.3, dampingFraction: 0.8), value: shot.isCompleted)
     }
