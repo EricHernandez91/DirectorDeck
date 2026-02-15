@@ -92,6 +92,10 @@ struct FloatingRecordingOverlay: View {
                             .font(.system(size: 15, weight: .medium, design: .monospaced))
                             .foregroundStyle(.white)
                         
+                        Text(recorder.formattedElapsed)
+                            .font(.system(size: 11, design: .monospaced))
+                            .foregroundStyle(.white.opacity(0.4))
+                        
                         if !recorder.currentSubjectName.isEmpty {
                             Text("• \(recorder.currentSubjectName)")
                                 .font(.system(size: 12))

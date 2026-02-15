@@ -58,10 +58,12 @@ final class InterviewMarker {
         self.recording = recording
     }
     
+    /// TOD timecode display (timestamp is seconds since midnight)
     var formattedTimestamp: String {
-        let h = Int(timestamp) / 3600
-        let m = (Int(timestamp) % 3600) / 60
-        let s = Int(timestamp) % 60
+        let total = Int(timestamp)
+        let h = total / 3600
+        let m = (total % 3600) / 60
+        let s = total % 60
         let f = Int((timestamp.truncatingRemainder(dividingBy: 1)) * 100)
         return String(format: "%02d:%02d:%02d.%02d", h, m, s, f)
     }

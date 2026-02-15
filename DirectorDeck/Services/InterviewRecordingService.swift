@@ -25,11 +25,28 @@ final class InterviewRecordingService: NSObject {
         state == .recording || state == .paused
     }
     
+    /// TOD (Time of Day) timecode — shows current wall clock time
     var formattedTime: String {
+        Self.todTimecode(from: Date())
+    }
+    
+    /// Elapsed recording duration formatted
+    var formattedElapsed: String {
         let h = Int(elapsedTime) / 3600
         let m = (Int(elapsedTime) % 3600) / 60
         let s = Int(elapsedTime) % 60
         let f = Int((elapsedTime.truncatingRemainder(dividingBy: 1)) * 100)
+        return String(format: "%02d:%02d:%02d.%02d", h, m, s, f)
+    }
+    
+    /// Returns TOD timecode string for a given date
+    static func todTimecode(from date: Date) -> String {
+        let cal = Calendar.current
+        let h = cal.component(.hour, from: date)
+        let m = cal.component(.minute, from: date)
+        let s = cal.component(.second, from: date)
+        let ns = cal.component(.nanosecond, from: date)
+        let f = ns / 10_000_000 // centiseconds
         return String(format: "%02d:%02d:%02d.%02d", h, m, s, f)
     }
     
@@ -110,9 +127,21 @@ final class InterviewRecordingService: NSObject {
     }
     
     func addMarker(label: String, notes: String = "") {
-        let marker = InterviewMarker(timestamp: elapsedTime, label: label)
+        let now = Date()
+        let todSeconds = Self.todSecondsFromMidnight(now)
+        let marker = InterviewMarker(timestamp: todSeconds, label: label)
         marker.notes = notes
         markers.append(marker)
+    }
+    
+    /// Seconds since midnight for TOD timecode storage
+    static func todSecondsFromMidnight(_ date: Date) -> TimeInterval {
+        let cal = Calendar.current
+        let h = cal.component(.hour, from: date)
+        let m = cal.component(.minute, from: date)
+        let s = cal.component(.second, from: date)
+        let ns = cal.component(.nanosecond, from: date)
+        return Double(h * 3600 + m * 60 + s) + Double(ns) / 1_000_000_000
     }
     
     private func startTimer() {
