@@ -129,7 +129,7 @@ final class InterviewRecordingService: NSObject {
     func addMarker(label: String, notes: String = "") {
         let now = Date()
         let todSeconds = Self.todSecondsFromMidnight(now)
-        let marker = InterviewMarker(timestamp: todSeconds, label: label)
+        let marker = InterviewMarker(timestamp: elapsedTime, todTimestamp: todSeconds, label: label)
         marker.notes = notes
         markers.append(marker)
     }
