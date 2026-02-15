@@ -142,15 +142,18 @@ struct InterviewQuestionsView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(DDTheme.cardGradient)
             
-            // Questions as cards
-            ScrollView {
-                LazyVStack(spacing: 10) {
-                    ForEach(subject.sortedQuestions) { question in
-                        QuestionCardRow(question: question, onEdit: { editingQuestion = question })
-                    }
+            // Questions as cards (drag to reorder)
+            List {
+                ForEach(subject.sortedQuestions) { question in
+                    QuestionCardRow(question: question, onEdit: { editingQuestion = question })
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets(top: 5, leading: 16, bottom: 5, trailing: 16))
                 }
-                .padding()
+                .onMove(perform: moveQuestions)
             }
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
             
             Divider()
             
@@ -173,6 +176,14 @@ struct InterviewQuestionsView: View {
         .background(DDTheme.deepBackground)
         .sheet(item: $editingQuestion) { question in
             EditQuestionSheet(question: question)
+        }
+    }
+    
+    private func moveQuestions(from source: IndexSet, to destination: Int) {
+        var ordered = subject.sortedQuestions
+        ordered.move(fromOffsets: source, toOffset: destination)
+        for (index, question) in ordered.enumerated() {
+            question.orderIndex = index
         }
     }
     
