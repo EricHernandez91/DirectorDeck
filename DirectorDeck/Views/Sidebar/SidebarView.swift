@@ -55,6 +55,25 @@ struct SidebarView: View {
         }
         .navigationTitle("DirectorDeck")
         .listStyle(.sidebar)
+        .toolbar {
+            ToolbarItem(placement: .bottomBar) {
+                Menu {
+                    Button {
+                        SampleDataService.importCFAProject(context: modelContext)
+                    } label: {
+                        Label("Import CFA Sample Project", systemImage: "square.and.arrow.down")
+                    }
+                    Button {
+                        SampleDataService.loadAllSampleProjects(context: modelContext)
+                    } label: {
+                        Label("Load All Sample Projects", systemImage: "tray.and.arrow.down")
+                    }
+                } label: {
+                    Label("Import", systemImage: "ellipsis.circle")
+                        .foregroundStyle(DDTheme.teal)
+                }
+            }
+        }
     }
     
     private func deleteProjects(at offsets: IndexSet) {

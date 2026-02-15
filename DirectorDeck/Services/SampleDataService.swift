@@ -181,6 +181,15 @@ struct SampleDataService {
     
     // MARK: - Boston Shoot
     
+    static func importCFAProject(context: ModelContext) {
+        createBostonShoot(context: context)
+    }
+    
+    static func loadAllSampleProjects(context: ModelContext) {
+        createTheLastLight(context: context)
+        createBostonShoot(context: context)
+    }
+    
     private static func createBostonShoot(context: ModelContext) {
         // MARK: - Project
         let project = Project(
