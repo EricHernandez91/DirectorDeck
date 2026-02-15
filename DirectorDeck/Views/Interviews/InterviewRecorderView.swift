@@ -258,9 +258,36 @@ struct InterviewRecorderView: View {
             if let url = audioURL {
                 _ = await TranscriptionService.requestPermission()
                 let transcript = (try? await TranscriptionService.transcribe(url: url)) ?? ""
+                
                 await MainActor.run {
                     recording.transcriptText = transcript
-                    recording.summaryText = TranscriptionService.generateSummary(transcript: transcript, markers: markersCopy)
+                    try? modelContext.save()
+                }
+                
+                // Try GPT summary, fall back to local summary
+                var summary: String
+                if GPTSummaryService.isConfigured && !transcript.isEmpty {
+                    do {
+                        summary = try await GPTSummaryService.generateSummary(
+                            transcript: transcript,
+                            markers: markersCopy
+                        )
+                    } catch {
+                        print("GPT summary failed: \(error.localizedDescription)")
+                        summary = TranscriptionService.generateSummary(
+                            transcript: transcript,
+                            markers: markersCopy
+                        )
+                    }
+                } else {
+                    summary = TranscriptionService.generateSummary(
+                        transcript: transcript,
+                        markers: markersCopy
+                    )
+                }
+                
+                await MainActor.run {
+                    recording.summaryText = summary
                     recording.isProcessing = false
                     try? modelContext.save()
                 }

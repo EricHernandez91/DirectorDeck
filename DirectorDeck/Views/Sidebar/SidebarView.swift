@@ -7,6 +7,7 @@ struct SidebarView: View {
     @Binding var selectedSection: SidebarSection?
     @Binding var showNewProject: Bool
     @Environment(\.modelContext) private var modelContext
+    @State private var showSettings = false
     
     var body: some View {
         List(selection: $selectedProject) {
@@ -56,6 +57,12 @@ struct SidebarView: View {
         .navigationTitle("DirectorDeck")
         .listStyle(.sidebar)
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button { showSettings = true } label: {
+                    Image(systemName: "gearshape")
+                        .foregroundStyle(DDTheme.teal)
+                }
+            }
             ToolbarItem(placement: .bottomBar) {
                 Menu {
                     Button {
@@ -73,6 +80,9 @@ struct SidebarView: View {
                         .foregroundStyle(DDTheme.teal)
                 }
             }
+        }
+        .sheet(isPresented: $showSettings) {
+            SettingsView()
         }
     }
     
