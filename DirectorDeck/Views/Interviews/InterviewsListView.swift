@@ -4,10 +4,13 @@ import SwiftData
 struct InterviewsListView: View {
     let project: Project
     @Environment(\.modelContext) private var modelContext
+    @Environment(InterviewRecordingService.self) private var recorder
     @State private var selectedSubject: InterviewSubject?
     @State private var showNewSubject = false
     @State private var newSubjectName = ""
     @State private var newSubjectRole = ""
+    @State private var showRecorder = false
+    @State private var selectedRecording: InterviewRecording?
     
     var subjects: [InterviewSubject] {
         project.interviewSubjects.sorted { $0.createdAt > $1.createdAt }
@@ -39,9 +42,42 @@ struct InterviewsListView: View {
         .navigationTitle("Interviews")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button(action: { showNewSubject = true }) {
-                    Label("Add Subject", systemImage: "plus")
+                HStack(spacing: 12) {
+                    Button(action: { showRecorder = true }) {
+                        Label("Record", systemImage: "mic.circle.fill")
+                            .foregroundStyle(.red)
+                    }
+                    Button(action: { showNewSubject = true }) {
+                        Label("Add Subject", systemImage: "plus")
+                    }
                 }
+            }
+        }
+        .overlay(alignment: .bottom) {
+            RecordingBannerView {
+                showRecorder = true
+            }
+            .padding(.bottom, 8)
+        }
+        .fullScreenCover(isPresented: $showRecorder) {
+            NavigationStack {
+                InterviewRecorderView(project: project, subject: selectedSubject)
+                    .toolbar {
+                        ToolbarItem(placement: .topBarLeading) {
+                            Button("Cancel") {
+                                if recorder.isActive {
+                                    _ = recorder.stop()
+                                    recorder.reset()
+                                }
+                                showRecorder = false
+                            }
+                        }
+                    }
+            }
+        }
+        .sheet(item: $selectedRecording) { recording in
+            NavigationStack {
+                RecordingDetailView(recording: recording)
             }
         }
         .alert("New Interview Subject", isPresented: $showNewSubject) {
@@ -105,14 +141,46 @@ struct InterviewsListView: View {
         }
         .listStyle(.sidebar)
         .frame(width: 280)
+        .safeAreaInset(edge: .bottom) {
+            if !project.interviewRecordings.isEmpty {
+                VStack(alignment: .leading, spacing: 6) {
+                    SectionLabel(title: "Recordings")
+                        .padding(.horizontal)
+                    ForEach(project.interviewRecordings.sorted(by: { $0.date > $1.date })) { rec in
+                        Button { selectedRecording = rec } label: {
+                            HStack(spacing: 10) {
+                                Image(systemName: rec.isProcessing ? "waveform" : "waveform.circle.fill")
+                                    .foregroundStyle(rec.isProcessing ? .orange : DDTheme.teal)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(rec.subjectName)
+                                        .font(.system(size: 13, weight: .semibold))
+                                        .foregroundStyle(.white)
+                                    Text(rec.date.formatted(date: .abbreviated, time: .shortened))
+                                        .font(.system(size: 11))
+                                        .foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                            }
+                            .padding(.horizontal)
+                            .padding(.vertical, 6)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.vertical, 8)
+                .background(DDTheme.surfaceBackground)
+            }
+        }
     }
 }
 
 struct InterviewQuestionsView: View {
     @Bindable var subject: InterviewSubject
     @Environment(\.modelContext) private var modelContext
+    @Environment(InterviewRecordingService.self) private var recorder
     @State private var newQuestionText = ""
     @State private var editingQuestion: InterviewQuestion?
+    @State private var showRecorder = false
     
     var askedCount: Int { subject.questions.filter(\.isAsked).count }
     var totalCount: Int { subject.questions.count }
@@ -174,6 +242,31 @@ struct InterviewQuestionsView: View {
             .padding()
         }
         .background(DDTheme.deepBackground)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button { showRecorder = true } label: {
+                    Label("Record Interview", systemImage: "mic.circle.fill")
+                        .font(.title3)
+                        .foregroundStyle(.red)
+                }
+            }
+        }
+        .fullScreenCover(isPresented: $showRecorder) {
+            NavigationStack {
+                InterviewRecorderView(project: subject.project!, subject: subject)
+                    .toolbar {
+                        ToolbarItem(placement: .topBarLeading) {
+                            Button("Cancel") {
+                                if recorder.isActive {
+                                    _ = recorder.stop()
+                                    recorder.reset()
+                                }
+                                showRecorder = false
+                            }
+                        }
+                    }
+            }
+        }
         .sheet(item: $editingQuestion) { question in
             EditQuestionSheet(question: question)
         }

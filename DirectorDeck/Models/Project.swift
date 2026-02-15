@@ -25,6 +25,9 @@ final class Project {
     @Relationship(deleteRule: .cascade, inverse: \ImportedDocument.project)
     var documents: [ImportedDocument]
     
+    @Relationship(deleteRule: .cascade, inverse: \InterviewRecording.project)
+    var interviewRecordings: [InterviewRecording]
+    
     @Relationship(deleteRule: .cascade, inverse: \ProjectFolder.project)
     var folders: [ProjectFolder]
     
@@ -41,6 +44,7 @@ final class Project {
         self.shotListItems = []
         self.documents = []
         self.folders = []
+        self.interviewRecordings = []
     }
 }
 

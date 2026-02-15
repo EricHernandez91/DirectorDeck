@@ -13,6 +13,9 @@ final class InterviewSubject {
     @Relationship(deleteRule: .cascade, inverse: \InterviewQuestion.subject)
     var questions: [InterviewQuestion]
     
+    @Relationship(deleteRule: .nullify, inverse: \InterviewRecording.subject)
+    var recordings: [InterviewRecording]
+    
     init(name: String, role: String = "", notes: String = "", project: Project? = nil) {
         self.id = UUID()
         self.name = name
@@ -21,6 +24,7 @@ final class InterviewSubject {
         self.createdAt = Date()
         self.project = project
         self.questions = []
+        self.recordings = []
     }
     
     var sortedQuestions: [InterviewQuestion] {
