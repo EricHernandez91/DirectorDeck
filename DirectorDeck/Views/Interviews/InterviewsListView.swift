@@ -9,7 +9,6 @@ struct InterviewsListView: View {
     @State private var showNewSubject = false
     @State private var newSubjectName = ""
     @State private var newSubjectRole = ""
-    @State private var showRecorder = false
     @State private var selectedRecording: InterviewRecording?
     
     var subjects: [InterviewSubject] {
@@ -43,9 +42,11 @@ struct InterviewsListView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 HStack(spacing: 12) {
-                    Button(action: { showRecorder = true }) {
-                        Label("Record", systemImage: "mic.circle.fill")
-                            .foregroundStyle(.red)
+                    if !recorder.isActive {
+                        Button(action: { startRecording(subject: selectedSubject) }) {
+                            Label("Record", systemImage: "mic.circle.fill")
+                                .foregroundStyle(.red)
+                        }
                     }
                     Button(action: { showNewSubject = true }) {
                         Label("Add Subject", systemImage: "plus")
@@ -53,27 +54,8 @@ struct InterviewsListView: View {
                 }
             }
         }
-        .overlay(alignment: .bottom) {
-            RecordingBannerView {
-                showRecorder = true
-            }
-            .padding(.bottom, 8)
-        }
-        .fullScreenCover(isPresented: $showRecorder) {
-            NavigationStack {
-                InterviewRecorderView(project: project, subject: selectedSubject)
-                    .toolbar {
-                        ToolbarItem(placement: .topBarLeading) {
-                            Button("Cancel") {
-                                if recorder.isActive {
-                                    _ = recorder.stop()
-                                    recorder.reset()
-                                }
-                                showRecorder = false
-                            }
-                        }
-                    }
-            }
+        .onReceive(NotificationCenter.default.publisher(for: .stopRecordingRequested)) { _ in
+            stopAndSaveRecording()
         }
         .sheet(item: $selectedRecording) { recording in
             NavigationStack {
@@ -172,6 +154,75 @@ struct InterviewsListView: View {
             }
         }
     }
+    
+    private func startRecording(subject: InterviewSubject?) {
+        Task {
+            let granted = await recorder.requestPermission()
+            guard granted else { return }
+            do {
+                try recorder.startRecording(subjectName: subject?.name ?? "Interview")
+            } catch {
+                print("Recording error: \(error)")
+            }
+        }
+    }
+    
+    private func stopAndSaveRecording() {
+        let result = recorder.stop()
+        let markersCopy = recorder.markers
+        
+        let recording = InterviewRecording(
+            subjectName: recorder.currentSubjectName,
+            audioFilePath: result.filePath,
+            project: project,
+            subject: selectedSubject
+        )
+        recording.duration = result.duration
+        modelContext.insert(recording)
+        
+        for marker in markersCopy {
+            marker.recording = recording
+            modelContext.insert(marker)
+        }
+        
+        try? modelContext.save()
+        
+        recording.isProcessing = true
+        let audioURL = recording.audioURL
+        
+        Task {
+            if let url = audioURL {
+                _ = await TranscriptionService.requestPermission()
+                let transcript = (try? await TranscriptionService.transcribe(url: url)) ?? ""
+                
+                await MainActor.run {
+                    recording.transcriptText = transcript
+                    try? modelContext.save()
+                }
+                
+                var summary: String
+                if GPTSummaryService.isConfigured && !transcript.isEmpty {
+                    do {
+                        summary = try await GPTSummaryService.generateSummary(transcript: transcript, markers: markersCopy)
+                    } catch {
+                        summary = TranscriptionService.generateSummary(transcript: transcript, markers: markersCopy)
+                    }
+                } else {
+                    summary = TranscriptionService.generateSummary(transcript: transcript, markers: markersCopy)
+                }
+                
+                await MainActor.run {
+                    recording.summaryText = summary
+                    recording.isProcessing = false
+                    try? modelContext.save()
+                }
+            } else {
+                await MainActor.run { recording.isProcessing = false }
+            }
+        }
+        
+        recorder.reset()
+    }
 }
 
 struct InterviewQuestionsView: View {
@@ -180,7 +231,6 @@ struct InterviewQuestionsView: View {
     @Environment(InterviewRecordingService.self) private var recorder
     @State private var newQuestionText = ""
     @State private var editingQuestion: InterviewQuestion?
-    @State private var showRecorder = false
     
     var askedCount: Int { subject.questions.filter(\.isAsked).count }
     var totalCount: Int { subject.questions.count }
@@ -244,27 +294,19 @@ struct InterviewQuestionsView: View {
         .background(DDTheme.deepBackground)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button { showRecorder = true } label: {
-                    Label("Record Interview", systemImage: "mic.circle.fill")
-                        .font(.title3)
-                        .foregroundStyle(.red)
-                }
-            }
-        }
-        .fullScreenCover(isPresented: $showRecorder) {
-            NavigationStack {
-                InterviewRecorderView(project: subject.project!, subject: subject)
-                    .toolbar {
-                        ToolbarItem(placement: .topBarLeading) {
-                            Button("Cancel") {
-                                if recorder.isActive {
-                                    _ = recorder.stop()
-                                    recorder.reset()
-                                }
-                                showRecorder = false
-                            }
+                if !recorder.isActive {
+                    Button {
+                        Task {
+                            let granted = await recorder.requestPermission()
+                            guard granted else { return }
+                            try? recorder.startRecording(subjectName: subject.name)
                         }
+                    } label: {
+                        Label("Record Interview", systemImage: "mic.circle.fill")
+                            .font(.title3)
+                            .foregroundStyle(.red)
                     }
+                }
             }
         }
         .sheet(item: $editingQuestion) { question in

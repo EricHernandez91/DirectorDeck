@@ -12,6 +12,8 @@ final class InterviewRecordingService: NSObject {
     var elapsedTime: TimeInterval = 0
     var currentSubjectName: String = ""
     var currentRecordingID: UUID?
+    var markers: [InterviewMarker] = []
+    var showFloatingTags: Bool = false
     
     private var audioRecorder: AVAudioRecorder?
     private var timer: Timer?
@@ -66,6 +68,7 @@ final class InterviewRecordingService: NSObject {
         accumulatedTime = 0
         elapsedTime = 0
         state = .recording
+        showFloatingTags = true
         startTimer()
     }
     
@@ -102,6 +105,14 @@ final class InterviewRecordingService: NSObject {
         currentRecordingID = nil
         currentFilePath = ""
         audioRecorder = nil
+        markers = []
+        showFloatingTags = false
+    }
+    
+    func addMarker(label: String, notes: String = "") {
+        let marker = InterviewMarker(timestamp: elapsedTime, label: label)
+        marker.notes = notes
+        markers.append(marker)
     }
     
     private func startTimer() {

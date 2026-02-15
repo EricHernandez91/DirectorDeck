@@ -49,6 +49,9 @@ struct ContentView: View {
             }
         }
         .navigationSplitViewStyle(.balanced)
+        .overlay {
+            FloatingRecordingOverlay()
+        }
         .tint(DDTheme.teal)
         .preferredColorScheme(.dark)
         .animation(.easeInOut(duration: 0.2), value: selectedSection)
